@@ -1,0 +1,472 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><title itemprop=name>Hands-on walkthrough of traffic management in Istio Part 1 | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro</title><meta name=twitter:title content="Hands-on walkthrough of traffic management in Istio Part 1 | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta itemprop=name content="Hands-on walkthrough of traffic management in Istio Part 1 | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta name=application-name content="Hands-on walkthrough of traffic management in Istio Part 1 | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta property="og:site_name" content="Tetrate Istio Distro"><meta name=description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta itemprop=description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta name=twitter:description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta property="og:locale" content="en"><meta name=language content="En"><meta property="og:updated_time" content="2021-02-23T12:15:00Z"><link rel=sitemap type=application/xml title=Sitemap href=/sitemap.xml><meta property="og:type" content="article"><meta property="article:publisher" content><meta property="og:article:published_time" content="2021-02-23T12:15:00Z"><meta property="article:published_time" content="2021-02-23T12:15:00Z"><meta property="og:article:author" content="[ peter jausovec](https www.peterj.dev )"><meta property="article:author" content="[ peter jausovec](https www.peterj.dev )"><meta name=author content="[ peter jausovec](https www.peterj.dev )"><script defer type=application/ld+json>{"@context":"http://schema.org","@type":"Article","headline":"Hands-on walkthrough of traffic management in Istio Part 1","author":{"@type":"Person","name":"https:\/\/github.com\/tetratelabs\/getmesh"},"datePublished":"2021-02-23","description":"In this blog, we will talk about how to get started with routing traffic between your services using service mesh. ","wordCount":4998,"mainEntityOfPage":"True","dateModified":"2021-02-23","image":{"@type":"imageObject","url":""},"publisher":{"@type":"Organization","name":"Tetrate Istio Distro | Simple, safe enterprise-grade Istio","logo":{"@type":"imageObject","url":"https://getistio.io/images/getistio-by-tetrate-logo.png"}}}</script><meta name=robots content="index,follow"><meta name=googlebot content="index,follow"><meta name=twitter:site content="@tetrateio"><meta name=twitter:creator content="@tetrateio"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=5"><meta name=generator content="Hugo 0.85.0"><script async src="https://www.googletagmanager.com/gtag/js?id=G-P3J9XNBME4"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-P3J9XNBME4')</script><link rel=preload href=/plugins/themify-icons/themify-icons.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/themify-icons/themify-icons.css></noscript><link rel=preload href=/plugins/search/auto-complete.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/search/auto-complete.css></noscript><link rel=preload href=/plugins/featherlight/featherlight.min.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/featherlight/featherlight.min.css></noscript><link rel=preload href=/css/bootstrap/bootstrap.min.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/css/bootstrap/bootstrap.min.css></noscript><link rel=preload href=/scss/style.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/scss/style.css></noscript><link rel="shortcut icon" href=/images/getistio-favicon.png type=image/x-icon><link rel=icon href=/images/getistio-favicon.png type=image/x-icon><meta property="og:title" content="Hands-on walkthrough of traffic management in Istio Part 1"><meta property="og:description" content="In this blog, we will talk about how to get started with routing traffic between your services using service mesh. "><meta property="og:type" content="article"><meta property="og:url" content="https://istio.tetratelabs.io/blog/istio-traffic-management-walkthrough-p1/"><meta property="og:image" content="https://istio.tetratelabs.io/images/twitter-card-new.png"><meta property="article:section" content="blog"><meta property="article:published_time" content="2021-02-23T12:15:00+00:00"><meta property="article:modified_time" content="2021-02-23T12:15:00+00:00"><script async defer src=/js/turbolinks.min.js></script></head><body><header class="sticky-top navigation"><div class=my-container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><div class=navbar-brand-container><a class=navbar-brand href=/><img class="img-fluid logo-width" src=/images/tetrate-istio-distro-logo.png alt="Tetrate Istio Distro | Simple, safe enterprise-grade Istio"></a>
+<a class=github-button href=https://github.com/tetratelabs/getistio data-icon=octicon-star aria-label="Star tetratelabs/getmesh on GitHub">Star</a></div><button aria-label=Menu class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
+<i class="ti-menu h4 text-white"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav mx-auto align-items-center"><li class=nav-item><a class=nav-link href=/getmesh-cli/>Docs</a></li><li class=nav-item><a class=nav-link href=/blog/>Blog</a></li><li class=nav-item><a class=nav-link href=/community-events/>Community</a></li><li class=nav-item><a class=nav-link href=https://academy.tetrate.io target=_blank>Training</a></li><li class=nav-item><a class=nav-link href=https://func-e.io/ target=_blank>func-e</a></li><li class=nav-item><a class=nav-link href=https://www.istio.io/ target=_blank>Istio.io</a></li><li class=nav-link></li></ul><div class="d-lg-none d-block"><a href=/download class="btn btn-sm btn-primary ml-lg-4">download</a></div></div><div class="d-lg-flex d-none"><a href=/download class="btn btn-sm btn-primary ml-lg-4">Download</a></div></nav></div></header><section class="py-5 blog-individual"><div class=container><div class="row mt-0 mb-0 justify-content-center"><div class=col-12><a href=../ class=link-grey>← Back to Blog</a><hr></div><div class="col-sm-9 mt-3"><h1>Hands-on walkthrough of traffic management in Istio Part 1</h1><p class="blog-date mt-3"><span class=author-info>by <a href=https://www.peterj.dev/>Peter Jausovec</a></span>
+<span>on Feb 23, 2021</span>
+/ 23 min read</p><div class="article-tags mb-4"><span class="mr-3 single-tag"><a href=https://istio.tetratelabs.io/tags/istio/>Istio</a></span></div></div></div><div class="row justify-content-center mt-0 blog-content"><div class=col-sm-9><p>In this blog, I will talk about how to get started with routing traffic between your services using service mesh. You will learn how to set up an <em>Ingress</em> resource to allow traffic into your cluster as well as an <em>Egress</em> resource to enable traffic to exit your cluster. I will explain how to deploy a new version of the service and run it alongside with the released production version of the service without disrupting production traffic. With both service versions deployed we will gradually release the new version and start routing a percentage of incoming requests to the latest version. With this basic set up in place, we will show how to do more advanced with match conditions on request parameters (e.g. URL, headers). Finally, I will talk about mirroring production traffic to a newly deployed service without impacting end-users.</p><h2 id=deploying-sample-services>Deploying sample services</h2><p>In this blog, you will be using two different services. The first one, called Hello Web, is a simple frontend web application that makes calls to another service, called the Greeter Service. We will be using multiple versions of the Greeter Service to demonstrate the use of traffic routing. The diagram below shows the two services.</p><p><img src=hello-greeter-arch.png alt="Hello web and greeter services"></p><p>But, to get started, we will deploy the Hello Web and Greeter Service V1. Let&rsquo;s start with the Kubernetes deployment and service for the Greeter Service V1 and deploy the resources to the <code>default</code> namespace on your Kubernetes cluster.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>cat &lt;&lt;EOF | kubectl create -f -
+<span style=color:#268bd2>apiVersion</span>: apps/v1
+<span style=color:#268bd2>kind</span>: Deployment
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: greeter-service-v1
+  <span style=color:#268bd2>labels</span>:
+    <span style=color:#268bd2>app</span>: greeter-service
+    <span style=color:#268bd2>version</span>: v1
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>replicas</span>: <span style=color:#2aa198>3</span>
+  <span style=color:#268bd2>selector</span>:
+    <span style=color:#268bd2>matchLabels</span>:
+      <span style=color:#268bd2>app</span>: greeter-service
+      <span style=color:#268bd2>version</span>: v1
+  <span style=color:#268bd2>template</span>:
+    <span style=color:#268bd2>metadata</span>:
+      <span style=color:#268bd2>labels</span>:
+        <span style=color:#268bd2>app</span>: greeter-service
+        <span style=color:#268bd2>version</span>: v1
+    <span style=color:#268bd2>spec</span>:
+      <span style=color:#268bd2>containers</span>:
+        - <span style=color:#268bd2>image</span>: learnistio/greeter-service:1.0.0
+          <span style=color:#268bd2>imagePullPolicy</span>: Always
+          <span style=color:#268bd2>name</span>: svc
+          <span style=color:#268bd2>ports</span>:
+            - <span style=color:#268bd2>containerPort</span>: <span style=color:#2aa198>3000</span>
+---
+<span style=color:#268bd2>kind</span>: Service
+<span style=color:#268bd2>apiVersion</span>: v1
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: greeter-service
+  <span style=color:#268bd2>labels</span>:
+    <span style=color:#268bd2>app</span>: greeter-service
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>selector</span>:
+    <span style=color:#268bd2>app</span>: greeter-service
+  <span style=color:#268bd2>ports</span>:
+    - <span style=color:#268bd2>port</span>: <span style=color:#2aa198>3000</span>
+      <span style=color:#268bd2>name</span>: http
+EOF
+</code></pre></div><p>If all goes well, you will see an output like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>deployment.apps/greeter-service-v1 created
+service/greeter-service created
+</code></pre></div><p>Similarly, let&rsquo;s create the Kubernetes deployment and service for the Hello Web frontend service. Note that in this deployment we are declaring an environment variable called <code>GREETER_SERVICE_URL</code>. This environment variable tells our web frontend the address of the Greeter Service.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>cat &lt;&lt;EOF | kubectl create -f -
+<span style=color:#268bd2>apiVersion</span>: apps/v1
+<span style=color:#268bd2>kind</span>: Deployment
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: helloweb
+  <span style=color:#268bd2>labels</span>:
+    <span style=color:#268bd2>app</span>: helloweb
+    <span style=color:#268bd2>version</span>: v1
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>replicas</span>: <span style=color:#2aa198>3</span>
+  <span style=color:#268bd2>selector</span>:
+    <span style=color:#268bd2>matchLabels</span>:
+      <span style=color:#268bd2>app</span>: helloweb
+      <span style=color:#268bd2>version</span>: v1
+  <span style=color:#268bd2>template</span>:
+    <span style=color:#268bd2>metadata</span>:
+      <span style=color:#268bd2>labels</span>:
+        <span style=color:#268bd2>app</span>: helloweb
+        <span style=color:#268bd2>version</span>: v1
+    <span style=color:#268bd2>spec</span>:
+      <span style=color:#268bd2>containers</span>:
+        - <span style=color:#268bd2>image</span>: learnistio/hello-web:1.0.0
+          <span style=color:#268bd2>imagePullPolicy</span>: Always
+          <span style=color:#268bd2>name</span>: web
+          <span style=color:#268bd2>ports</span>:
+            - <span style=color:#268bd2>containerPort</span>: <span style=color:#2aa198>3000</span>
+          <span style=color:#268bd2>env</span>:
+            - <span style=color:#268bd2>name</span>: GREETER_SERVICE_URL
+              <span style=color:#268bd2>value</span>: <span style=color:#2aa198>&#39;http://greeter-service.default.svc.cluster.local:3000&#39;</span>
+---
+<span style=color:#268bd2>kind</span>: Service
+<span style=color:#268bd2>apiVersion</span>: v1
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: helloweb
+  <span style=color:#268bd2>labels</span>:
+    <span style=color:#268bd2>app</span>: helloweb
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>selector</span>:
+    <span style=color:#268bd2>app</span>: helloweb
+  <span style=color:#268bd2>ports</span>:
+    - <span style=color:#268bd2>port</span>: <span style=color:#2aa198>3000</span>
+      <span style=color:#268bd2>name</span>: http
+EOF
+</code></pre></div><p>To watch the deployment, you can run <code>kubectl get pods --watch</code> - this shows you the status changes of each pod. You can also just run the <code>kubectl get pods</code> command to shows all pods and their current status:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>NAME                                 READY   STATUS    RESTARTS   AGE
+greeter-service-v1-c4f8d55cb-2gbrr   2/2     Running   <span style=color:#2aa198>0</span>          4m48s
+greeter-service-v1-c4f8d55cb-h7ssg   2/2     Running   <span style=color:#2aa198>0</span>          4m48s
+greeter-service-v1-c4f8d55cb-pjxcc   2/2     Running   <span style=color:#2aa198>0</span>          4m48s
+helloweb-8567cfc9f8-5ctxm            2/2     Running   <span style=color:#2aa198>0</span>          4m35s
+helloweb-8567cfc9f8-gcwcc            2/2     Running   <span style=color:#2aa198>0</span>          4m35s
+helloweb-8567cfc9f8-p9krk            2/2     Running   <span style=color:#2aa198>0</span>          4m35s
+</code></pre></div><p>Notice we have three replicas of each service and each pod has two containers - one is the service container and the second one is the Envoy proxy that was automatically injected.</p><h2 id=accessing-deployed-services>Accessing Deployed Services</h2><p>By default, any service running inside the service mesh is not automatically exposed outside of the cluster, which means that we can&rsquo;t get to it from the public Internet. Up until Istio version <code>1.X.X</code>, services within the mesh didn&rsquo;t have access to anything running outside of the cluster either. However, that has changed with the Istio version used in this book, and you can access any services, APIs, and endpoints outside of your cluster, without explicitly allowing access to them. Note that you should still review all your services and ensure they are only accessing what they need to access and prevent them from accessing any other (unknown) external resources.</p><p>To allow incoming traffic to reach a service running inside the cluster, you need to create an external load balancer first. As part of the installation, Istio deploys an <code>istio-ingressgateway</code> service that is of type <code>LoadBalancer</code>. Together with this service and an Istio Gateway resource, you can configure access to services running inside the cluster.</p><p>If you run <code>kubectl get svc istio-ingressgateway -n istio-system</code>, you will get an output similar to this one:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP       PORT<span style=color:#719e07>(</span>S<span style=color:#719e07>)</span>...
+istio-ingressgateway   LoadBalancer   10.107.249.46   &lt;pending&gt;         80:31380/TCP... 
+</code></pre></div><p>The above output shows the Istio ingress gateway of type LoadBalancer. If you&rsquo;re using a Minikube cluster you will notice how the external IP column shows text <code>&lt;pending></code> - that is because we don&rsquo;t have a real external load balancer as everything runs locally. With a cluster running in the cloud from any cloud provider, we would see an actual IP address there - that IP address is where the incoming traffic enters the cluster. If you are using Docker for Mac/Windows, you will see <code>localhost</code> under the EXTERNAL-IP column.</p><p>We will be accessing the service in the cluster frequently, so we need to know which address to use. The address we are going to use depends on where the Kubernetes cluster is running.</p><h3 id=if-using-minikube>If using Minikube</h3><p>Minikube has a command called <code>minikube tunnel</code>. This command creates networking routes from your machine into the Kubernetes cluster as well as allocates IPs to services marked with LoadBalancer. What this means is that you can access your exposed service using an external IP address, just like you would when you&rsquo;re running Kubernetes in the cloud.</p><p>To use the tunnel command, open a new terminal window and run <code>minikube tunnel</code>. You should see an output similar to this one:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ minikube tunnel
+Status:
+    machine: minikube
+    pid: <span style=color:#2aa198>43606</span>
+    route: 10.96.0.0/12 -&gt; 192.168.99.104
+    minikube: Running
+    services: <span style=color:#719e07>[</span>istio-ingressgateway<span style=color:#719e07>]</span>
+  errors:
+    minikube: no errors
+    router: no errors
+    loadbalancer emulator: no errors
+</code></pre></div><p>If you run the <code>kubectl get svc istio-ingressgateway -n istio-system</code> command to get the ingress gateway service, you will notice an actual IP address in the <code>EXTERNAL-IP</code> column. It should look something like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl get svc istio-ingressgateway -n istio-system
+NAME                   TYPE           CLUSTER-IP       EXTERNAL-IP
+PORT<span style=color:#719e07>(</span>S<span style=color:#719e07>)</span>
+istio-ingressgateway   LoadBalancer   10.107.235.182   **10.99.132.130**
+.......
+</code></pre></div><p>Now you can use the external IP address (e.g. <code>10.99.132.130</code>) as the public entry point to your cluster. Set this value to the GATEWAY variable like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#b58900>export</span> <span style=color:#268bd2>GATEWAY</span><span style=color:#719e07>=[</span>EXTERNAL-IP<span style=color:#719e07>]</span>
+</code></pre></div><h3 id=if-using-docker-for-macwindows>If using Docker for Mac/Windows</h3><p>When using Docker for Mac/Windows, the Istio ingress gateway is exposed on <code>http://localhost:80</code>, so you can set the <code>GATEWAY</code> variable like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#b58900>export</span> <span style=color:#268bd2>GATEWAY</span><span style=color:#719e07>=</span>http://localhost
+</code></pre></div><h3 id=if-using-hosted-kubernetes>If using hosted Kubernetes</h3><p>If you&rsquo;re using hosted Kubernetes, run the <code>kubectl get svc istio- ingressgateway -n istio-system</code> command and use the external IP value.</p><p>For the rest of the book, we will be referring to the <code>GATEWAY</code> environment variable in all examples when accessing the services.</p><h2 id=using-istio-gateway>Using Istio Gateway</h2><p>Now that you have the <code>GATEWAY</code> variable set up, you can try and access it. Unfortunately, the connection will be refused:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ curl -v <span style=color:#268bd2>$GATEWAY</span>
+*   Trying 10.99.132.130...
+* TCP_NODELAY <span style=color:#b58900>set</span>
+* Connection failed
+* connect to 10.99.132.130 port <span style=color:#2aa198>80</span> failed: Connection refused
+* Failed to connect to 10.99.132.130 port 80: Connection refused
+* Closing connection <span style=color:#2aa198>0</span>
+curl: <span style=color:#719e07>(</span>7<span style=color:#719e07>)</span> Failed to connect to 10.99.132.130 port 80: Connection refused
+</code></pre></div><p>You need a Gateway resource for the ingress gateway to know where to route the requests when they hit the cluster. The ingress and the gateway resource operate at the edge of the service mesh and are used to enable incoming traffic to the cluster. Here&rsquo;s how a minimal Istio Gateway resource looks like:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: networking.istio.io/v1alpha3
+<span style=color:#268bd2>kind</span>: Gateway
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: gateway
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>selector</span>:
+    <span style=color:#268bd2>istio</span>: ingressgateway
+  <span style=color:#268bd2>servers</span>:
+    - <span style=color:#268bd2>port</span>:
+        <span style=color:#268bd2>number</span>: <span style=color:#2aa198>80</span>
+        <span style=color:#268bd2>name</span>: http
+        <span style=color:#268bd2>protocol</span>: HTTP
+      <span style=color:#268bd2>hosts</span>:
+        - <span style=color:#2aa198>&#39;*&#39;</span>
+</code></pre></div><p>The snippet above creates an Istio Gateway resource with the <code>istio: ingressgateway</code> selector. An istio-ingressgateway pod with the label <code>istio=ingressgateway</code> got created as part of the Istio installation, and the gateway resource with the matching selector <code>istio=ingressgateway</code> adds the routing config to the istio-ingressgateway pod.</p><p>If you run <code>kubectl get pod --selector="istio=ingressgateway" --all-namespaces</code> you will get pods that are labeled with <code>ingressgateway</code>. The command returns an ingress gateway pod that&rsquo;s running in the <code>istio-system</code> namespace and is installed as part of the Istio installation. The ingress gateway receives all incoming traffic to the cluster and will ensure the requests get redirected to services in the cluster, based on the settings defined in the Gateway resource.</p><p>Under <code>servers</code> you define which hosts will this gateway proxy. We are using <code>*</code> which means we want to proxy all requests, regardless of the hostname.</p><blockquote><p>Using Real Domains</p><p>In the real world, the host gets set to the actual domain name (e.g. <a href=http://www.example.com>www.example.com</a>) where cluster services get accessed. The <code>*</code> should be only used for testing and in local scenarios and not in production.</p></blockquote><p>With the host and port combination above, we are allowing incoming HTTP traffic to port <code>80</code> for any host (<code>*</code>). Let&rsquo;s deploy our own Gateway resource to the <code>default</code> namespace:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl create -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: Gateway
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: gateway
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  selector:
+</span><span style=color:#2aa198>    istio: ingressgateway
+</span><span style=color:#2aa198>  servers:
+</span><span style=color:#2aa198>    - port:
+</span><span style=color:#2aa198>        number: 80
+</span><span style=color:#2aa198>        name: http
+</span><span style=color:#2aa198>        protocol: HTTP
+</span><span style=color:#2aa198>      hosts:
+</span><span style=color:#2aa198>        - &#39;*&#39;
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>Let&rsquo;s try and make a request to the $GATEWAY endpoint now.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ curl -v <span style=color:#268bd2>$GATEWAY</span>
+*   Trying 10.99.132.130...
+* TCP_NODELAY <span style=color:#b58900>set</span>
+* Connected to 10.99.132.130 <span style=color:#719e07>(</span>10.99.132.130<span style=color:#719e07>)</span> port <span style=color:#2aa198>80</span> <span style=color:#719e07>(</span><span style=color:#586e75>#0)</span>
+&gt; GET / HTTP/1.1
+&gt; Host: 10.99.132.130
+&gt; User-Agent: curl/7.64.1
+&gt; Accept: */*
+&gt;
+&lt; HTTP/1.1 <span style=color:#2aa198>404</span> Not Found
+&lt; date: Fri, <span style=color:#2aa198>09</span> Oct <span style=color:#2aa198>2020</span> 21:50:08 GMT
+&lt; server: istio-envoy
+&lt; content-length: <span style=color:#2aa198>0</span>
+&lt;
+* Connection <span style=color:#586e75>#0 to host 10.99.132.130 left intact</span>
+* Closing connection <span style=color:#2aa198>0</span>
+</code></pre></div><p>Notice this time we get back an HTTP 404 response. The request is getting to the ingress gateway, but there&rsquo;s nothing behind it and the gateway doesn&rsquo;t know where or how to route the request.</p><p>Let&rsquo;s also look at the logs from the Istio ingress gateway pod to see the requests coming in:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl get pod --selector<span style=color:#719e07>=</span><span style=color:#2aa198>&#34;istio=ingressgateway&#34;</span> --all-namespaces
+NAMESPACE      NAME                                    READY   STATUS    RESTARTS   AGE
+istio-system   istio-ingressgateway-7bd5586b79-nzbm8   1/1     Running   <span style=color:#2aa198>0</span>          11m
+
+$ kubectl logs istio-ingressgateway-7bd5586b79-nzbm8 -n istio-system
+...
+<span style=color:#719e07>[</span>2020-10-09T21:50:08.971Z<span style=color:#719e07>]</span> <span style=color:#2aa198>&#34;GET / HTTP/1.1&#34;</span> <span style=color:#2aa198>404</span> - <span style=color:#2aa198>&#34;-&#34;</span> <span style=color:#2aa198>&#34;-&#34;</span> <span style=color:#2aa198>0</span> <span style=color:#2aa198>0</span> <span style=color:#2aa198>0</span> - <span style=color:#2aa198>&#34;192.168.99.1&#34;</span> <span style=color:#2aa198>&#34;curl/7.64.1&#34;</span> <span style=color:#2aa198>&#34;697452d4-08c9-9370-a3c2-2cbca13b34c5&#34;</span> <span style=color:#2aa198>&#34;10.99.132.130&#34;</span> <span style=color:#2aa198>&#34;-&#34;</span> - - 172.17.0.5:8080 192.168.99.1:58015 - default
+....
+</code></pre></div><p>This is telling us that the incoming traffic did reach the ingress gateway. If you think about it, that response makes sense as we only defined the port and hosts with the Gateway resource, but haven&rsquo;t specified an actual destination for the traffic. To do that, we use another Istio resource called virtual service (<code>VirtualService</code>).</p><h2 id=virtual-services>Virtual Services</h2><p>Since we will be talking a lot about <em>services</em> throughout the book, let&rsquo;s make a quick note on the terminology. The word <em>service</em> is overloaded and can mean a bunch of different things, depending on the context. Whenever I mention the word <em>service</em>, I will make sure to use it in a context and say for example a &ldquo;Kubernetes service&rdquo; when I am talking about the Kubernetes <code>Service</code> resource or &ldquo;Virtual service&rdquo; when I talk about the Istio virtual service resource. In addition to this, I will also refer to the sample apps service we will use throughout the book - Hello Web and Greeter Service - either as services or apps.</p><p>Istio&rsquo;s Virtual Service resource is used to configure how the requests get routed within the mesh. Virtual service is one of the resources you will use heavily throughout the book. Let&rsquo;s look at an example of the Istio virtual service resource:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: networking.istio.io/v1alpha3
+<span style=color:#268bd2>kind</span>: VirtualService
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: helloweb
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>hosts</span>:
+    - <span style=color:#2aa198>&#39;helloweb.dev&#39;</span>
+  <span style=color:#268bd2>gateways</span>:
+    - gateway
+  <span style=color:#268bd2>http</span>:
+    - <span style=color:#268bd2>route</span>:
+      - <span style=color:#268bd2>destination</span>:
+          <span style=color:#268bd2>host</span>: helloweb.default.svc.cluster.local
+          <span style=color:#268bd2>port</span>:
+            <span style=color:#268bd2>number</span>: <span style=color:#2aa198>3000</span>
+</code></pre></div><p>The host in the virtual service is the address used by clients when attempting to connect to the service. In our case, you will use the <code>helloweb.dev</code> as the host. Using an actual host instead of an asterisk (e.g. <code>*</code>) will allow us to have multiple services deployed and accessed through the gateway at the same time. A potential downside is that you will have to remember to include a <code>Host: [hostname]</code> header with each curl request you make. Besides, if you want to access services through the browser, you will need to install an extension that allows you to modify the headers. If using Chrome, you can try the <a href=https://mod-header.appspot.com/help.html>ModHeader extension</a>.</p><p>In addition to the hosts setting, we are also specifying a name of the gateway resource (<code>gateway</code>) you create before, and with this setting, you are allowing traffic to come through the gateway and hit the destination host defined in the virtual service (<code>helloweb.default.svc.cluster.local</code>).</p><p>The route and destination portion are used to define the host and the port number of the Kubernetes service you are trying to reach. The host in our case is the Kubernetes service DNS name - <code>helloweb.default.svc.cluster.local</code>, just like the hostname.</p><blockquote><p>The reason for using fully qualified service names is because of the way Istio interprets the short names (e.g. <code>helloweb</code>). Istio expands the short name to <code>helloweb.[namespace].svc.cluster.local</code>. However, the <code>namespace</code> gets replaced with the namespace that contains the virtual service and <em>not</em> with the namespace the <code>helloweb</code> service runs in. Always make sure to use fully qualified names, as to avoid confusion.</p></blockquote><p>With the help of a virtual service resource, one can also configure multiple destinations, and this is something that&rsquo;s explained later in the book where we talk about traffic splitting.</p><p>Let&rsquo;s go ahead and deploy the virtual service:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: VirtualService
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: helloweb
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  hosts:
+</span><span style=color:#2aa198>    - &#39;helloweb.dev&#39;
+</span><span style=color:#2aa198>  gateways:
+</span><span style=color:#2aa198>    - gateway
+</span><span style=color:#2aa198>  http:
+</span><span style=color:#2aa198>    - route:
+</span><span style=color:#2aa198>      - destination:
+</span><span style=color:#2aa198>          host: helloweb.default.svc.cluster.local
+</span><span style=color:#2aa198>          port:
+</span><span style=color:#2aa198>            number: 3000
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>With the virtual service deploy, you can try the same <code>curl</code> command:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ curl -H <span style=color:#2aa198>&#34;Host: helloweb.dev&#34;</span> <span style=color:#268bd2>$GATEWAY</span>
+&lt;link <span style=color:#268bd2>rel</span><span style=color:#719e07>=</span><span style=color:#2aa198>&#34;stylesheet&#34;</span> <span style=color:#268bd2>type</span><span style=color:#719e07>=</span><span style=color:#2aa198>&#34;text/css&#34;</span> <span style=color:#268bd2>href</span><span style=color:#719e07>=</span><span style=color:#2aa198>&#34;css/style.css&#34;</span> /&gt;
+
+&lt;pre&gt;frontend: 1.0.0&lt;/pre&gt;
+&lt;pre&gt;service: 1.0.0&lt;/pre&gt;
+
+
+&lt;div <span style=color:#268bd2>class</span><span style=color:#719e07>=</span><span style=color:#2aa198>&#34;container&#34;</span>&gt;
+    &lt;h1&gt;hello 👋 &lt;/h1&gt;
+&lt;/div&gt;
+</code></pre></div><blockquote><p>You can also open the <code>$GATEWAY</code> address in your browser for the UI experience.</p></blockquote><p>The traffic is now flowing through the Istio ingress gateway, the virtual service and finally, it hits the Hello Web frontend, which in turn calls the Greeter service to get the greeting message.</p><h2 id=service-entries>Service Entries</h2><p>Now that we know how to allow traffic inside the cluster let&rsquo;s figure out how can we enable services to make calls outside of the cluster as well.</p><p>To demonstrate the use of the service entry resource we are going to deploy a service called Movie web. This simple website makes an API call to <code>themoviedb.org</code> to retrieve a list of currently popular movies and displays them.</p><p>Before you can deploy the Movie web, go to <a href=http://themoviedb.org>http://themoviedb.org</a> and obtain an API key. Once you get the API key, replace the <code>&lt;API_KEY_HERE></code> in the YAML file with the actual API key. Now you can deploy the Movie web:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: apps/v1
+</span><span style=color:#2aa198>kind: Deployment
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: movieweb
+</span><span style=color:#2aa198>  labels:
+</span><span style=color:#2aa198>    app: movieweb
+</span><span style=color:#2aa198>    version: v1
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  replicas: 3
+</span><span style=color:#2aa198>  selector:
+</span><span style=color:#2aa198>    matchLabels:
+</span><span style=color:#2aa198>      app: movieweb
+</span><span style=color:#2aa198>      version: v1
+</span><span style=color:#2aa198>  template:
+</span><span style=color:#2aa198>    metadata:
+</span><span style=color:#2aa198>      labels:
+</span><span style=color:#2aa198>        app: movieweb
+</span><span style=color:#2aa198>        version: v1
+</span><span style=color:#2aa198>    spec:
+</span><span style=color:#2aa198>      containers:
+</span><span style=color:#2aa198>        - name: movieweb
+</span><span style=color:#2aa198>          image: learnistio/movie-web:1.0.0
+</span><span style=color:#2aa198>          imagePullPolicy: Always
+</span><span style=color:#2aa198>          ports:
+</span><span style=color:#2aa198>            - containerPort: 3000
+</span><span style=color:#2aa198>          env:
+</span><span style=color:#2aa198>            - name: THEMOVIEDB_API_KEY
+</span><span style=color:#2aa198>              value: &#39;&lt;API_KEY_HERE&gt;&#39;
+</span><span style=color:#2aa198>---
+</span><span style=color:#2aa198>kind: Service
+</span><span style=color:#2aa198>apiVersion: v1
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: movieweb
+</span><span style=color:#2aa198>  labels:
+</span><span style=color:#2aa198>    app: movieweb
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  selector:
+</span><span style=color:#2aa198>    app: movieweb
+</span><span style=color:#2aa198>  ports:
+</span><span style=color:#2aa198>    - port: 3000
+</span><span style=color:#2aa198>      name: http
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>With the Kubernetes service and deployment created, you also need to deploy a virtual service:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: VirtualService
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: movieweb
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  hosts:
+</span><span style=color:#2aa198>    - &#39;*&#39;
+</span><span style=color:#2aa198>  gateways:
+</span><span style=color:#2aa198>    - gateway
+</span><span style=color:#2aa198>  http:
+</span><span style=color:#2aa198>    - route:
+</span><span style=color:#2aa198>      - destination:
+</span><span style=color:#2aa198>          host: movieweb.default.svc.cluster.local
+</span><span style=color:#2aa198>          port:
+</span><span style=color:#2aa198>            number: 3000
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>Note that we are setting the <code>hosts</code> to <code>*</code>. This means that we don&rsquo;t need to specify a Host header to access the movieweb application.</p><p>In the earlier versions of Istio, any requests made to the outside of the cluster were automatically blocked and you would get an error like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ curl -H <span style=color:#2aa198>&#34;Host: movieweb.dev&#34;</span> <span style=color:#268bd2>$GATEWAY</span>
+<span style=color:#719e07>{</span><span style=color:#2aa198>&#34;error&#34;</span>:<span style=color:#2aa198>&#34;Error accessing: api.themoviedb.org&#34;</span><span style=color:#719e07>}</span>
+</code></pre></div><p>This setting has been changed in the recent versions of Istio and traffic going outside of the cluster is now enabled by default. To control the traffic exiting the service mesh, you can use another Istio resource called <em>ServiceEntry</em>. With this resource, you can make any service (external to the mesh or internal services, not part of the service registry) become part of the service registry.</p><p>When you use the service entry resource you are essentially making an external service part of the service mesh and &ldquo;pulling&rdquo; it in. Once you have an external service as part of the service mesh, it allows you to apply any other mesh patterns to it as well - for example, you can do traffic splitting, failure injection and more, and it doesn&rsquo;t matter that the services are external. Just like you have a Gateway resource defined for incoming requests, you could also set another gateway resource for all egress traffic (traffic exiting the cluster).</p><p>Here&rsquo;s how a service entry resource looks like for the <code>api.themoviedb.org</code>:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: networking.istio.io/v1alpha3
+<span style=color:#268bd2>kind</span>: ServiceEntry
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: movieweb
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>hosts</span>:
+    - api.themoviedb.org
+  <span style=color:#268bd2>ports</span>:
+    - <span style=color:#268bd2>number</span>: <span style=color:#2aa198>443</span>
+      <span style=color:#268bd2>name</span>: https
+      <span style=color:#268bd2>protocol</span>: HTTPS
+  <span style=color:#268bd2>resolution</span>: DNS
+  <span style=color:#268bd2>location</span>: MESH_EXTERNAL
+</code></pre></div><p>The main parts that are interesting here are the entries under <code>hosts</code> - this is the actual host we call from the Movie web service. The port number (<code>443</code>) and protocol (<code>https</code>) are self-explanatory and should match the port/protocol used when accessing the external service.</p><p>The <code>resolution: DNS</code> setting defines how to resolve the IPs. There are three options you can pick from: <code>NONE</code>, <code>STATIC</code> and <code>DNS</code> - we are using the DNS setting because we want the proxy to attempt
+to resolve the IP address of the host during the requests. You would use the <code>STATIC</code> parameter if you had specified the static IP addresses in the service entry, and <code>NONE</code> if you don&rsquo;t want to do any resolution - this assumes the destination is already resolved and forwards the connection to the destination IP address.</p><p>Lastly, with the location set to <code>MESH_EXTERNAL</code> you are saying that this is an external service that is consumed through the APIs. The other possible option for the location setting is <code>MESH_INTERNAL</code>. Typically, this option is used for services that should be part of the mesh, but are perhaps running on different infrastructure and not necessarily in the same cluster.</p><p>Let&rsquo;s deploy the service entry resource for the Movie web and allow the Movie web to access the API:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: ServiceEntry
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: movieweb
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  hosts:
+</span><span style=color:#2aa198>    - api.themoviedb.org
+</span><span style=color:#2aa198>  ports:
+</span><span style=color:#2aa198>    - number: 443
+</span><span style=color:#2aa198>      name: https
+</span><span style=color:#2aa198>      protocol: HTTPS
+</span><span style=color:#2aa198>  resolution: DNS
+</span><span style=color:#2aa198>  location: MESH_EXTERNAL
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>If you open the <code>http://$GATEWAY</code> in your browser or use curl you will get a web site with a list of movies, together with posters and descriptions, just like in it&rsquo;s shown below.</p><p><img src=movieweb.png alt="Web site with movies from the API"></p><p>Let&rsquo;s delete the MovieWeb resources before you continue:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl delete deploy movieweb
+kubectl delete svc movieweb
+kubectl delete vs movieweb
+</code></pre></div><h2 id=basic-traffic-splitting>Basic Traffic Splitting</h2><p>Up until now, we were dealing with only one version of the service, and we explained how to allow incoming requests to the cluster, and use a service entry resource to give the mesh service access to external services and APIs. Sometimes having a single frontend that calls one API is enough, however in most cases,
+one has multiple services running within the cluster and talking to each other. All these services can evolve at their own pace, so you can quickly end up with numerous different versions. How do you go about releasing new service versions and how to ensure and get confidence that the new version will work as good as the existing one?</p><p>This is where the service mesh can help out. This section will show you how to take a new service version, deploy it, and then gradually release it to production, while at the same time minimizing the risk to end-users.</p><p>To demonstrate traffic splitting, we will use the Hello Web and two different versions of the Greeter service we introduced at the beginning of this blog.</p><p>If you open the <code>GATEWAY</code> URL, you should see something similar to the figure below. Hello web is calling the V1 version of the Greeter service and displaying the message it gets back.</p><p><img src=hello-web-greeter-v1.png alt="Hello Web version 1"></p><p>The V1 version of the Greeter service is excellent and helpful, but we&rsquo;d like to release a v2 of the Greeter service. Because we want to minimize the risks of exposing users to a broken version of the service, we want to do gradual roll-out, while still keeping the existing service up and running. Once we&rsquo;ve deployed the new version, we can start releasing it gradually by routing 10% of all incoming requests to the latest version, while the rest of the requests (90%) still goes to the existing version.</p><h3 id=splitting-traffic-by-weight>Splitting Traffic By Weight</h3><p>With Istio, you can route requests by assigning weights to each version of the service - weights translate to the percentage of the incoming requests to route to that version of the service. At the moment, the traffic through the services looks like shown below.</p><p><img src=traffic-flow-1.png alt="Traffic flow through the services"></p><p>Traffic comes from the Internet and hits the load balancer and gateway and then goes to the <code>helloweb</code> Kubernetes service. After that <code>helloweb</code> Kubernetes services load balances the traffic between all pods that have the label <code>app: helloweb</code> set. If you look at the deployment YAML for the Hello web, you will notice we have the following labels defined:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>  <span style=color:#268bd2>labels</span>:
+    <span style=color:#268bd2>app</span>: helloweb
+    <span style=color:#268bd2>version</span>: v1
+</code></pre></div><p>From the Hello web pod, we make a call to the Greeter service using it&rsquo;s DNS name (<a href=http://greeter-service.default.svc.cluster.local:3000>http://greeter-service.default.svc.cluster.local:3000</a>) - this DNS name gets automatically created when Kubernetes service is deployed. The Kubernetes service will then in turn load balance between all pods labeled with the <em>app: greeter-service</em>. Similarly, as in the Hello web deployment, we have these labels defined in the Greeter service deployment v1:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>  <span style=color:#268bd2>labels</span>:
+    <span style=color:#268bd2>app</span>: greeter-service
+    <span style=color:#268bd2>version</span>: v1
+</code></pre></div><p>How would we go about deploying a second version of the greeter service?</p><ol><li><p>We create an entirely separate Kubernetes deployment that has the label <code>version: v2</code>, in addition to the <code>app: greeter-service</code> label. This deployment also uses a different Docker image with the v2 version of our service, but everything else in the YAML file is identical to the V1 version of the service.</p></li><li><p>We don&rsquo;t need to deploy another Kubernetes service as we already have the Kubernetes <code>greeter-service</code> deployed. We also shouldn&rsquo;t rename the service or deploy a different version of it, because the Hello Web relies on the DNS name (e.g. <code>http://greeter-service:3000</code>) to make calls to it.</p></li></ol><p>Notice how the selector is defined in the greeter service Kubernetes service:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>  <span style=color:#268bd2>selector</span>:
+    <span style=color:#268bd2>app</span>: greeter-service
+</code></pre></div><p>This means that it doesn&rsquo;t have a clue about the greeter service versions, which is ok. However, if we would deploy the v2 of the greeter service and then reload the hello web, we would randomly get responses back from either v1 or v2 pods. This is shown blow.</p><p><img src=traffic-flow-2.png alt="Greeter service v1 and v2 pods"></p><p>If you remember when we talked about Istio&rsquo;s <em>VirtualService</em> resource, we briefly mentioned that one could define multiple destinations where requests can be routed to. This is exactly what we need to do. You can define a second destination like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: networking.istio.io/v1alpha3
+<span style=color:#268bd2>kind</span>: VirtualService
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: greeter-service
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>hosts</span>:
+    - greeter-service
+  <span style=color:#268bd2>http</span>:
+    - <span style=color:#268bd2>route</span>:
+      - <span style=color:#268bd2>destination</span>:
+          <span style=color:#268bd2>host</span>: greeter-service.default.svc.cluster.local
+          <span style=color:#268bd2>port</span>:
+            <span style=color:#268bd2>number</span>: <span style=color:#2aa198>3000</span>
+      - <span style=color:#268bd2>destination</span>:
+          <span style=color:#268bd2>host</span>: greeter-service.default.svc.cluster.local
+          <span style=color:#268bd2>port</span>:
+            <span style=color:#268bd2>number</span>: <span style=color:#2aa198>3000</span>
+</code></pre></div><p>However, this alone is not enough as we are not differentiating between service versions in any way - in both cases, we have the same host. We need to specify that we want only 10% of the requests going to V1 of the service and the rest of the traffic to go to the V2 version of the service.</p><p>For this purpose, Istio has a resource named <em>DestinationRule</em>. With this rule and the concept of subsets, you can specify how to distinguish between different versions of the service using labels on the Kubernetes pods. Any rules defined in the destination rule are applied to the request <em>after</em> virtual service routing occurs. Since we have two versions of the greeter service, we can create two subsets named <code>v1</code> and <code>v2</code> and define the labels that are used to distinguish between them (e.g. <code>version: v1</code> and <code>version: v2</code>). These labels get then applied to the Kubernetes service selectors. So the Greeter Kubernetes service is generic, and load balances between all pods with the <code>app: greeter-service</code>, but this destination rule and the <code>VirtualService</code> will additionally apply either <code>version: v1</code> or <code>version: v2</code> at the time of routing.</p><p>Here&rsquo;s how a destination rule would look like for the greeter service:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: networking.istio.io/v1alpha3
+<span style=color:#268bd2>kind</span>: DestinationRule
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: greeter-service
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>host</span>: greeter-service.default.svc.cluster.local
+  <span style=color:#268bd2>subsets</span>:
+    - <span style=color:#268bd2>name</span>: v1
+      <span style=color:#268bd2>labels</span>:
+        <span style=color:#268bd2>version</span>: v1
+    - <span style=color:#268bd2>name</span>: v2
+      <span style=color:#268bd2>labels</span>:
+        <span style=color:#268bd2>version</span>: v2
+</code></pre></div><p>With the destination rule in place, you will also need to update the virtual service to use these subsets. Here&rsquo;s a snippet that shows how to define the subsets and weights:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>...
+- <span style=color:#268bd2>destination</span>:
+    <span style=color:#268bd2>host</span>: greeter-service.default.svc.cluster.local
+    <span style=color:#268bd2>port</span>:
+      <span style=color:#268bd2>number</span>: <span style=color:#2aa198>3000</span>
+    <span style=color:#268bd2>subset</span>: v1
+<span style=color:#268bd2>weight</span>: <span style=color:#2aa198>90</span>
+
+- <span style=color:#268bd2>destination</span>:
+    <span style=color:#268bd2>host</span>: greeter-service.default.svc.cluster.local
+    <span style=color:#268bd2>port</span>:
+      <span style=color:#268bd2>number</span>: <span style=color:#2aa198>3000</span>
+    <span style=color:#268bd2>subset</span>: v2
+<span style=color:#268bd2>weight</span>: <span style=color:#2aa198>10</span>
+...
+</code></pre></div><p>We have added the subset to each of the destinations, as well as the weight that routes 10% of the requests to the new version (v2) and 90% of the requests to the existing, v1 version.</p><p>Now that we clarified how this works let&rsquo;s come up with a better plan of deploying the v2 version of the service, without disrupting any existing traffic.</p><p>As a first step, you need to deploy the destination rule - in this rule, you define the versions by creating a subset for each version, and we specify the traffic policy to use mutual TLS for connections.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: DestinationRule
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: greeter-service
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>  subsets:
+</span><span style=color:#2aa198>    - name: v1
+</span><span style=color:#2aa198>      labels:
+</span><span style=color:#2aa198>        version: v1
+</span><span style=color:#2aa198>    - name: v2
+</span><span style=color:#2aa198>      labels:
+</span><span style=color:#2aa198>        version: v2
+</span><span style=color:#2aa198>  trafficPolicy:
+</span><span style=color:#2aa198>    tls:
+</span><span style=color:#2aa198>      mode: ISTIO_MUTUAL
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>Next, you can deploy the updated virtual service that defines how the traffic should be routed - all traffic to the v1 version of the greeter service.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: VirtualService
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: greeter-service
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  hosts:
+</span><span style=color:#2aa198>    - greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>  http:
+</span><span style=color:#2aa198>    - route:
+</span><span style=color:#2aa198>      - destination:
+</span><span style=color:#2aa198>          host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>          port:
+</span><span style=color:#2aa198>            number: 3000
+</span><span style=color:#2aa198>          subset: v1
+</span><span style=color:#2aa198>        weight: 100
+</span><span style=color:#2aa198>      - destination:
+</span><span style=color:#2aa198>          host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>          port:
+</span><span style=color:#2aa198>            number: 3000
+</span><span style=color:#2aa198>          subset: v2
+</span><span style=color:#2aa198>        weight: 0
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>Remember that during this process, the service is &ldquo;live&rdquo;, and there is no downtime at all. Finally, you can deploy the v2 version of the greeter service.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: apps/v1
+</span><span style=color:#2aa198>kind: Deployment
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: greeter-service-v2
+</span><span style=color:#2aa198>  labels:
+</span><span style=color:#2aa198>    app: greeter-service
+</span><span style=color:#2aa198>    version: v2
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  replicas: 3
+</span><span style=color:#2aa198>  selector:
+</span><span style=color:#2aa198>    matchLabels:
+</span><span style=color:#2aa198>      app: greeter-service
+</span><span style=color:#2aa198>      version: v2
+</span><span style=color:#2aa198>  template:
+</span><span style=color:#2aa198>    metadata:
+</span><span style=color:#2aa198>      labels:
+</span><span style=color:#2aa198>        app: greeter-service
+</span><span style=color:#2aa198>        version: v2
+</span><span style=color:#2aa198>    spec:
+</span><span style=color:#2aa198>      containers:
+</span><span style=color:#2aa198>        - name: svc
+</span><span style=color:#2aa198>          image: learnistio/greeter-service:2.0.0
+</span><span style=color:#2aa198>          imagePullPolicy: Always
+</span><span style=color:#2aa198>          ports:
+</span><span style=color:#2aa198>            - containerPort: 3000
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>Now you have v2 version deployed in the &ldquo;dark mode&rdquo; - no traffic is getting routed to that version at the moment. If you try and open the gateway URL now (don&rsquo;t forget to set the <code>helloweb.dev</code> Host header), you will get the same response back as earlier - all responses from v1 version only. Here&rsquo;s the output of the <code>kubectl get pods</code> command that shows that there are six greeter service pods deployed and running - three pods with the v1 version and three pods with the v2 version:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl get pods
+NAME                                 READY   STATUS    RESTARTS   AGE
+greeter-service-v1-c4f8d55cb-2gbrr   2/2     Running   <span style=color:#2aa198>0</span>          24h
+greeter-service-v1-c4f8d55cb-h7ssg   2/2     Running   <span style=color:#2aa198>0</span>          24h
+greeter-service-v1-c4f8d55cb-pjxcc   2/2     Running   <span style=color:#2aa198>0</span>          24h
+greeter-service-v2-9974dc6-hdcz6     2/2     Running   <span style=color:#2aa198>0</span>          2m42s
+greeter-service-v2-9974dc6-qtk9q     2/2     Running   <span style=color:#2aa198>0</span>          2m42s
+greeter-service-v2-9974dc6-w78bl     2/2     Running   <span style=color:#2aa198>0</span>          2m42s
+helloweb-75cdb96474-c24hw            2/2     Running   <span style=color:#2aa198>0</span>          24h
+helloweb-75cdb96474-m6jcg            2/2     Running   <span style=color:#2aa198>0</span>          24h
+helloweb-75cdb96474-w4crk            2/2     Running   <span style=color:#2aa198>0</span>          24h
+</code></pre></div><p>Let&rsquo;s start redirecting 10% of the incoming traffic to the v2 version. To do that, you need to update the weights in the virtual service and re-deploy it.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: VirtualService
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: greeter-service
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  hosts:
+</span><span style=color:#2aa198>    - greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>  http:
+</span><span style=color:#2aa198>    - route:
+</span><span style=color:#2aa198>        - destination:
+</span><span style=color:#2aa198>            host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>            port:
+</span><span style=color:#2aa198>              number: 3000
+</span><span style=color:#2aa198>            subset: v1
+</span><span style=color:#2aa198>          weight: 90
+</span><span style=color:#2aa198>        - destination:
+</span><span style=color:#2aa198>            host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>            port:
+</span><span style=color:#2aa198>              number: 3000
+</span><span style=color:#2aa198>            subset: v2
+</span><span style=color:#2aa198>          weight: 10
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>If you open the gateway URL now and refresh the page a couple of times, you will eventually see the response from the v2 version of the greeter service as shown in figure below.</p><p><img src=hello-web-greeter-v2.png alt="Response from the greeter service v2"></p><p>Now that you have the v2 deployed and partially released, the next thing that usually happens is that you monitor and observe your service for any issues and, if everything looks ok, you gradually route more and more traffic to the v2 version, while decreasing the percentage of requests going to the v1 version. This is accomplished by merely updating the weights in virtual service.</p><p>In case you discover any issues with the v2 version, you can easily roll back the percentage by either re-routing a portion or all traffic back to the v1 version of the service. It&rsquo;s never fun to discover issues; however, with this approach, you are only affecting a smaller portion of the users, instead of everyone. Note that the version is not the only thing to use for request routing. In the next section, we will talk about how to match the requests in a more detailed way. You could refine the traffic that gets routed to the new version even more precisely - by browsers, location, or anything else that can be figured out from the incoming requests.</p><p>Assuming you don&rsquo;t find any issues with the new version of the service, you will eventually end up with 100% of requests routed to the v2 version of the service and 0% routed to the v1 version. Once that happens, you can remove the v1 deployment without impacting anything (assuming no other services are using it).</p><p>A crucial thing to note here is the ability to monitor and observe your services from all angles. If you don&rsquo;t have any service monitoring in place, it&rsquo;s going to be hard to tell with a high degree of confidence when your service is behaving well or if it&rsquo;s broken. We will talk more about observability in a later blog.</p><p>For more on Istio traffic management check out the <a href=../istio-traffic-management-walkthrough-p2/>Hands-on walkthrough of traffic management in Istio Part 2</a> of this blog.</p></div></div><h3>See Also</h3><ul><li><a href=/blog/whats-new-istio-1-9/>What's new in Istio 1.9?</a></li></ul><div class="col-12 blog-post-footer"><hr><a href=/blog/ class=link-grey>← Back to Blog</a></div></div></section><footer><div class=container><div class="row align-items-center pb-0 footer-logo"><a class=navbar-brand href=/><img id=getistio-footer-logo class=img-fluid src=/images/tetrate-istio-distro-logo.png alt="Tetrate Istio Distro | Simple, safe enterprise-grade Istio"></a>
+<a href=https://www.tetrate.io target=_blank><img id=tetrate-footer-logo class=img-fluid src=/images/tetrate-logo.svg alt="Tetrate Logo"></a></div><div class="py-4 text-center"><div class=mb-4><ul class="list-inline social-icons text-lg-center text-center"><li class=list-inline-item><a href=https://www.tetrate.io/ target=_blank aria-label="Tetrate website"><i class=ti-world></i></a></li><li class=list-inline-item><a href=https://www.twitter.com/tetrateio target=_blank aria-label="Tetrate Twitter account"><i class=ti-twitter-alt></i></a></li><li class=list-inline-item><a href=https://www.github.com/tetratelabs target=_blank aria-label="Tetrate Github account"><i class=ti-github></i></a></li><li class=list-inline-item><a href=https://www.linkedin.com/company/tetrate/ target=_blank aria-label="Tetrate LinkedIn account"><i class=ti-linkedin></i></a></li></ul></div><small class=text-white>Support: Join our <a href=https://tetr8.io/tetrate-community target=_blank>#tid-and-getmesh Slack Channel</a> for Community Support</small><br><small class=text-white>License: Tetrate Istio Distro is an open source project and is released under Apache License 2.0 | <a href=https://www.tetrate.io/privacy target=_blank>Privacy Statement</a></small><br><small class=text-white>Official project site of istio is <a href=https://www.istio.io target=_blank>istio.io</a></small><br><small class=text-white>Copyright &copy; 2023 <a href=https://www.tetrate.io target=_blank>Tetrate</a> All rights reserved.</small></div></div></footer><script type=text/javascript>var indexURL="/index.json",baseurl="https://istio.tetratelabs.io/"</script><script src=/plugins/jQuery/jquery.min.js></script><script src=/plugins/bootstrap/bootstrap.min.js></script><script src=/plugins/featherlight/featherlight.min.js></script><script src=/plugins/clipboard/clipboard.min.js></script><script src=/plugins/match-height/jquery.matchHeight-min.js></script><script src=/plugins/search/auto-complete.js></script><script src=/plugins/search/search.js></script><script src=/plugins/search/lunr.min.js></script><script src=/plugins/search/fuse.min.js></script><script src=/plugins/search/mark.js></script><script src=/plugins/search/search-page.js></script><script src=/js/script.min.js></script><script src=/js/form.min.js></script><script type=text/javascript src="//js.hsforms.net/forms/v2.js?pre=1"></script><script async defer src=https://buttons.github.io/buttons.js></script></body></html>

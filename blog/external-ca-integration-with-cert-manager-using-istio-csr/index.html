@@ -1,0 +1,125 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><title itemprop=name>External CA integration with cert-manager using istio-csr | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro</title><meta name=twitter:title content="External CA integration with cert-manager using istio-csr | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta itemprop=name content="External CA integration with cert-manager using istio-csr | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta name=application-name content="External CA integration with cert-manager using istio-csr | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta property="og:site_name" content="Tetrate Istio Distro"><meta name=description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta itemprop=description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta name=twitter:description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta property="og:locale" content="en"><meta name=language content="En"><link rel=alternate hreflang=en href=/blog/external-ca-integration-with-cert-manager-using-istio-csr/><link rel=alternate hreflang=zh href=/zh/blog/external-ca-integration-with-cert-manager-using-istio-csr/><meta property="og:updated_time" content="2021-02-09T00:00:00Z"><link rel=sitemap type=application/xml title=Sitemap href=/sitemap.xml><meta property="og:type" content="article"><meta property="article:publisher" content><meta property="og:article:published_time" content="2021-02-09T00:00:00Z"><meta property="article:published_time" content="2021-02-09T00:00:00Z"><meta property="og:article:author" content="[ zhihan zhang](https github.com zhi han z)"><meta property="article:author" content="[ zhihan zhang](https github.com zhi han z)"><meta name=author content="[ zhihan zhang](https github.com zhi han z)"><script defer type=application/ld+json>{"@context":"http://schema.org","@type":"Article","headline":"External CA integration with cert-manager using istio-csr","author":{"@type":"Person","name":"https:\/\/github.com\/tetratelabs\/getmesh"},"datePublished":"2021-02-09","description":"This blog will show how to integrate cert-manager as an external CA to your Istio service mesh using istio-csr extension. ","wordCount":702,"mainEntityOfPage":"True","dateModified":"2021-02-09","image":{"@type":"imageObject","url":""},"publisher":{"@type":"Organization","name":"Tetrate Istio Distro | Simple, safe enterprise-grade Istio","logo":{"@type":"imageObject","url":"https://getistio.io/images/getistio-by-tetrate-logo.png"}}}</script><meta name=robots content="index,follow"><meta name=googlebot content="index,follow"><meta name=twitter:site content="@tetrateio"><meta name=twitter:creator content="@tetrateio"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=5"><meta name=generator content="Hugo 0.85.0"><script async src="https://www.googletagmanager.com/gtag/js?id=G-P3J9XNBME4"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-P3J9XNBME4')</script><link rel=preload href=/plugins/themify-icons/themify-icons.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/themify-icons/themify-icons.css></noscript><link rel=preload href=/plugins/search/auto-complete.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/search/auto-complete.css></noscript><link rel=preload href=/plugins/featherlight/featherlight.min.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/featherlight/featherlight.min.css></noscript><link rel=preload href=/css/bootstrap/bootstrap.min.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/css/bootstrap/bootstrap.min.css></noscript><link rel=preload href=/scss/style.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/scss/style.css></noscript><link rel="shortcut icon" href=/images/getistio-favicon.png type=image/x-icon><link rel=icon href=/images/getistio-favicon.png type=image/x-icon><meta property="og:title" content="External CA integration with cert-manager using istio-csr"><meta property="og:description" content="This blog will show how to integrate cert-manager as an external CA to your Istio service mesh using istio-csr extension. "><meta property="og:type" content="article"><meta property="og:url" content="https://istio.tetratelabs.io/blog/external-ca-integration-with-cert-manager-using-istio-csr/"><meta property="og:image" content="https://istio.tetratelabs.io/images/twitter-card-new.png"><meta property="article:section" content="blog"><meta property="article:published_time" content="2021-02-09T00:00:00+00:00"><meta property="article:modified_time" content="2021-02-09T00:00:00+00:00"><script async defer src=/js/turbolinks.min.js></script></head><body><header class="sticky-top navigation"><div class=my-container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><div class=navbar-brand-container><a class=navbar-brand href=/><img class="img-fluid logo-width" src=/images/tetrate-istio-distro-logo.png alt="Tetrate Istio Distro | Simple, safe enterprise-grade Istio"></a>
+<a class=github-button href=https://github.com/tetratelabs/getistio data-icon=octicon-star aria-label="Star tetratelabs/getmesh on GitHub">Star</a></div><button aria-label=Menu class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
+<i class="ti-menu h4 text-white"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav mx-auto align-items-center"><li class=nav-item><a class=nav-link href=/getmesh-cli/>Docs</a></li><li class=nav-item><a class=nav-link href=/blog/>Blog</a></li><li class=nav-item><a class=nav-link href=/community-events/>Community</a></li><li class=nav-item><a class=nav-link href=https://academy.tetrate.io target=_blank>Training</a></li><li class=nav-item><a class=nav-link href=https://func-e.io/ target=_blank>func-e</a></li><li class=nav-item><a class=nav-link href=https://www.istio.io/ target=_blank>Istio.io</a></li><li class=nav-link><select class=nav-item id=select-language onchange="location=this.value"><option id=en value=/blog/external-ca-integration-with-cert-manager-using-istio-csr/ selected>En</option><option id=zh value=/zh/blog/external-ca-integration-with-cert-manager-using-istio-csr/>中文</option></select></li></ul><div class="d-lg-none d-block"><a href=/download class="btn btn-sm btn-primary ml-lg-4">download</a></div></div><div class="d-lg-flex d-none"><a href=/download class="btn btn-sm btn-primary ml-lg-4">Download</a></div></nav></div></header><section class="py-5 blog-individual"><div class=container><div class="row mt-0 mb-0 justify-content-center"><div class=col-12><a href=../ class=link-grey>← Back to Blog</a><hr></div><div class="col-sm-9 mt-3"><h1>External CA integration with cert-manager using istio-csr</h1><p class="blog-date mt-3"><span class=author-info>by <a href=https://github.com/ZhiHanZ>Zhihan Zhang</a></span>
+<span>on Feb 9, 2021</span>
+/ 3 min read</p><div class="article-tags mb-4"><span class="mr-3 single-tag"><a href=https://istio.tetratelabs.io/tags/security/>security</a></span></div></div></div><div class="row justify-content-center mt-0 blog-content"><div class=col-sm-9><p>In this article we at Tetrate will show how to integrate <a href=https://cert-manager.io/>cert-manager</a> as an external CA to your Istio service mesh using <a href=https://github.com/cert-manager/istio-csr>istio-csr </a>extension.</p><h3 id=background>Background</h3><p>For key and certificate management, Istio is using its own Certificate Authority (CA) inside <code>istiod</code> control plane.</p><p>Here, we would use the <a href=https://cert-manager.io/>cert-manager </a>provisioned Issuer as the <a href=https://istio.tetratelabs.io/istio-ca-certs-integrations/>external CA</a> to sign the workload certificates using Istio CSR API with the CSR request directly going from the workloads to the external CA.</p><h3 id=setting-up-the-environment>Setting up the Environment</h3><p>We performed this demo using Kubernetes 1.18 and Istio 1.8:</p><ol><li><p>Deploy Kubernetes cluster(>=1.16) with minikube.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>minikube start --memory<span style=color:#719e07>=</span><span style=color:#2aa198>10000</span> --cpus<span style=color:#719e07>=</span><span style=color:#2aa198>4</span> --kubernetes-version<span style=color:#719e07>=</span>1.18.6
+</code></pre></div></li><li><p>Install helm3 for cert-manager CRD installation.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | sh
+</code></pre></div></li><li><p>Install GetMesh and fetch Istio.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>curl -sL https://istio.tetratelabs.io/getmesh/install.sh | sh
+getmesh fetch
+</code></pre></div></li></ol><h3 id=deploy-cert-manager>Deploy cert-manager</h3><p>Install cert-manager in cert-manager namespace.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl create namespace cert-manager
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+helm install <span style=color:#cb4b16>\
+</span><span style=color:#cb4b16></span>  cert-manager jetstack/cert-manager <span style=color:#cb4b16>\
+</span><span style=color:#cb4b16></span>  --namespace cert-manager <span style=color:#cb4b16>\
+</span><span style=color:#cb4b16></span>  --version v1.1.0 <span style=color:#cb4b16>\
+</span><span style=color:#cb4b16></span>  --set <span style=color:#268bd2>installCRDs</span><span style=color:#719e07>=</span><span style=color:#b58900>true</span>
+</code></pre></div><h3 id=configure-cert-manager-issuer>Configure cert-manager Issuer</h3><p>While we could use cert-manager to connect with several Issuers, in this example we would configure cert-manager to create a self-signed CA to issue workload certificates. The <code>istio-ca</code> secret would hold the CA key/cert pair.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: cert-manager.io/v1
+<span style=color:#268bd2>kind</span>: Issuer
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: selfsigned
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>selfSigned</span>: {}
+---
+<span style=color:#268bd2>apiVersion</span>: cert-manager.io/v1
+<span style=color:#268bd2>kind</span>: Certificate
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: istio-ca
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>isCA</span>: <span style=color:#cb4b16>true</span>
+  <span style=color:#268bd2>duration</span>: 2160h <span style=color:#586e75># 90d</span>
+  <span style=color:#268bd2>secretName</span>: istio-ca
+  <span style=color:#268bd2>commonName</span>: istio-ca
+  <span style=color:#268bd2>subject</span>:
+    <span style=color:#268bd2>organizations</span>:
+    - cluster.local
+    - cert-manager
+  <span style=color:#268bd2>issuerRef</span>:
+    <span style=color:#268bd2>name</span>: selfsigned
+    <span style=color:#268bd2>kind</span>: Issuer
+    <span style=color:#268bd2>group</span>: cert-manager.io
+---
+<span style=color:#268bd2>apiVersion</span>: cert-manager.io/v1
+<span style=color:#268bd2>kind</span>: Issuer
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: istio-ca
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>ca</span>:
+    <span style=color:#268bd2>secretName</span>: istio-ca
+</code></pre></div><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl create ns istio-system
+kubectl apply -f https://raw.githubusercontent.com/cert-manager/istio-csr/master/hack/demo/cert-manager-bootstrap-resources.yaml -n istio-system
+</code></pre></div><h3 id=deploy-istio-csr-agent-for-cert-manager>Deploy istio-csr agent for cert-manager</h3><p>Deploy <code>istio-csr</code> through official helm chart. It will use a certificate named <code>istio-ca</code> to generate <code>istio-ca</code> secret for workload certificate and verification.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>helm repo add https://chart.jetstack.io
+helm repo update
+helm install -n cert-manager cert-manager-istio-csr jetstack/cert-manager-istio-csr
+</code></pre></div><p>This agent also creates a secret <code>istod-tls</code> which holds the tls cert/key for istiod to serve XDS. This newly created cert is signed by <code>istio-ca</code>.</p><h3 id=install-and-configure-istio>Install and Configure Istio</h3><p>Initialize Istio operator.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>getmesh istioctl operator init
+</code></pre></div><p>Configure on the <code>operator yaml</code>.</p><ul><li>Configure External CA address for workloads</li><li>Disable istiod as the CA Server</li><li>provide TLS certs for istiod from cert-manager</li></ul><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: install.istio.io/v1alpha1
+<span style=color:#268bd2>kind</span>: IstioOperator
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>namespace</span>: istio-system
+  <span style=color:#268bd2>name</span>: istio-operator-csr
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>profile</span>: <span style=color:#2aa198>&#34;demo&#34;</span>
+  <span style=color:#268bd2>hub</span>: containers.istio.tetratelabs.com
+  <span style=color:#268bd2>values</span>:
+    <span style=color:#268bd2>global</span>:
+      <span style=color:#586e75># Change certificate provider to cert-manager istio agent for istio agent</span>
+      <span style=color:#268bd2>caAddress</span>: cert-manager-istio-csr.cert-manager.svc:443
+  <span style=color:#268bd2>components</span>:
+    <span style=color:#268bd2>pilot</span>:
+      <span style=color:#268bd2>k8s</span>:
+        <span style=color:#268bd2>env</span>:
+          <span style=color:#586e75># Disable istiod CA Sever functionality</span>
+        - <span style=color:#268bd2>name</span>: ENABLE_CA_SERVER
+          <span style=color:#268bd2>value</span>: <span style=color:#2aa198>&#34;false&#34;</span>
+        <span style=color:#268bd2>overlays</span>:
+        - <span style=color:#268bd2>apiVersion</span>: apps/v1
+          <span style=color:#268bd2>kind</span>: Deployment
+          <span style=color:#268bd2>name</span>: istiod
+          <span style=color:#268bd2>patches</span>:
+
+            <span style=color:#586e75># Mount istiod serving and webhook certificate from Secret mount</span>
+          - <span style=color:#268bd2>path</span>: spec.template.spec.containers.[name:discovery].args[7]
+            <span style=color:#268bd2>value</span>: <span style=color:#2aa198>&#34;--tlsCertFile=/etc/cert-manager/tls/tls.crt&#34;</span>
+          - <span style=color:#268bd2>path</span>: spec.template.spec.containers.[name:discovery].args[8]
+            <span style=color:#268bd2>value</span>: <span style=color:#2aa198>&#34;--tlsKeyFile=/etc/cert-manager/tls/tls.key&#34;</span>
+          - <span style=color:#268bd2>path</span>: spec.template.spec.containers.[name:discovery].args[9]
+            <span style=color:#268bd2>value</span>: <span style=color:#2aa198>&#34;--caCertFile=/etc/cert-manager/ca/root-cert.pem&#34;</span>
+
+          - <span style=color:#268bd2>path</span>: spec.template.spec.containers.[name:discovery].volumeMounts[6]
+            <span style=color:#268bd2>value</span>:
+              <span style=color:#268bd2>name</span>: cert-manager
+              <span style=color:#268bd2>mountPath</span>: <span style=color:#2aa198>&#34;/etc/cert-manager/tls&#34;</span>
+              <span style=color:#268bd2>readOnly</span>: <span style=color:#cb4b16>true</span>
+          - <span style=color:#268bd2>path</span>: spec.template.spec.containers.[name:discovery].volumeMounts[7]
+            <span style=color:#268bd2>value</span>:
+              <span style=color:#268bd2>name</span>: ca-root-cert
+              <span style=color:#268bd2>mountPath</span>: <span style=color:#2aa198>&#34;/etc/cert-manager/ca&#34;</span>
+              <span style=color:#268bd2>readOnly</span>: <span style=color:#cb4b16>true</span>
+
+          - <span style=color:#268bd2>path</span>: spec.template.spec.volumes[6]
+            <span style=color:#268bd2>value</span>:
+              <span style=color:#268bd2>name</span>: cert-manager
+              <span style=color:#268bd2>secret</span>:
+                <span style=color:#268bd2>secretName</span>: istiod-tls
+          - <span style=color:#268bd2>path</span>: spec.template.spec.volumes[7]
+            <span style=color:#268bd2>value</span>:
+              <span style=color:#268bd2>name</span>: ca-root-cert
+              <span style=color:#268bd2>configMap</span>:
+                <span style=color:#268bd2>secretName</span>: istiod-tls
+                <span style=color:#268bd2>defaultMode</span>: <span style=color:#2aa198>420</span>
+                <span style=color:#268bd2>name</span>: istio-ca-root-cert
+</code></pre></div><p>You could validate on all cert-manager certs in <code>istio-system</code> namespace through the following command.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl get certificates -n istio-system
+NAME       READY   SECRET       AGE
+istio-ca   True    istio-ca     16m
+istiod     True    istiod-tls   16m
+</code></pre></div><h3 id=deploy-application>Deploy application</h3><p>Here we deploy a simple workload for certificate verification.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl create ns foo
+kubectl label ns foo istio-injection<span style=color:#719e07>=</span>enabled
+kubectl apply -f samples/sleep/sleep.yaml -n foo
+
+kubectl get pods -n foo
+NAME                    READY   STATUS    RESTARTS   AGE
+sleep-8f795f47d-vv6hx   2/2     Running   <span style=color:#2aa198>0</span>          42s
+</code></pre></div><h3 id=validate-mtls-certs-issued-for-workloads>Validate mTLS certs issued for workloads</h3><p>After the workload is running, we could check on the secret in SDS using the istioctl proxy-config command.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>getmesh istioctl pc secret sleep-8f795f47d-vv6hx.foo -o json &gt; proxy_secret
+</code></pre></div><p>Check on the proxy_secret. There should be a field named <code>ROOTCA</code> and in <code>ROOTCA</code> there should be a field <code>trustedCA</code> which is signed by cert-manager <code>istio-ca</code>.</p><p>Compare the base64 value in <code>trustedCA</code> with the <code>istio-ca</code> secret <code>ca.crt</code> located in <code>istio-system</code>. Those two should be the same.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl get secrets -n istio-system istio-ca -o json &gt; istio-ca
+</code></pre></div><h3 id=summary>Summary</h3><p>This article demonstrates how to integrate cert-manager as an external CA for Istio service mesh. The cert-manager/service mesh integration can be successfully implemented in different clouds with brand-new or existing deployments of cert-manager, when the service mesh is introduced during Day 2 implementations stage. In the end, you&rsquo;re getting the best of two worlds: Istio integrating with an external CA of your choice!</p></div></div><div class="col-12 blog-post-footer"><hr><a href=/blog/ class=link-grey>← Back to Blog</a></div></div></section><footer><div class=container><div class="row align-items-center pb-0 footer-logo"><a class=navbar-brand href=/><img id=getistio-footer-logo class=img-fluid src=/images/tetrate-istio-distro-logo.png alt="Tetrate Istio Distro | Simple, safe enterprise-grade Istio"></a>
+<a href=https://www.tetrate.io target=_blank><img id=tetrate-footer-logo class=img-fluid src=/images/tetrate-logo.svg alt="Tetrate Logo"></a></div><div class="py-4 text-center"><div class=mb-4><ul class="list-inline social-icons text-lg-center text-center"><li class=list-inline-item><a href=https://www.tetrate.io/ target=_blank aria-label="Tetrate website"><i class=ti-world></i></a></li><li class=list-inline-item><a href=https://www.twitter.com/tetrateio target=_blank aria-label="Tetrate Twitter account"><i class=ti-twitter-alt></i></a></li><li class=list-inline-item><a href=https://www.github.com/tetratelabs target=_blank aria-label="Tetrate Github account"><i class=ti-github></i></a></li><li class=list-inline-item><a href=https://www.linkedin.com/company/tetrate/ target=_blank aria-label="Tetrate LinkedIn account"><i class=ti-linkedin></i></a></li></ul></div><small class=text-white>Support: Join our <a href=https://tetr8.io/tetrate-community target=_blank>#tid-and-getmesh Slack Channel</a> for Community Support</small><br><small class=text-white>License: Tetrate Istio Distro is an open source project and is released under Apache License 2.0 | <a href=https://www.tetrate.io/privacy target=_blank>Privacy Statement</a></small><br><small class=text-white>Official project site of istio is <a href=https://www.istio.io target=_blank>istio.io</a></small><br><small class=text-white>Copyright &copy; 2023 <a href=https://www.tetrate.io target=_blank>Tetrate</a> All rights reserved.</small></div></div></footer><script type=text/javascript>var indexURL="/index.json",baseurl="https://istio.tetratelabs.io/"</script><script src=/plugins/jQuery/jquery.min.js></script><script src=/plugins/bootstrap/bootstrap.min.js></script><script src=/plugins/featherlight/featherlight.min.js></script><script src=/plugins/clipboard/clipboard.min.js></script><script src=/plugins/match-height/jquery.matchHeight-min.js></script><script src=/plugins/search/auto-complete.js></script><script src=/plugins/search/search.js></script><script src=/plugins/search/lunr.min.js></script><script src=/plugins/search/fuse.min.js></script><script src=/plugins/search/mark.js></script><script src=/plugins/search/search-page.js></script><script src=/js/script.min.js></script><script src=/js/form.min.js></script><script type=text/javascript src="//js.hsforms.net/forms/v2.js?pre=1"></script><script async defer src=https://buttons.github.io/buttons.js></script></body></html>

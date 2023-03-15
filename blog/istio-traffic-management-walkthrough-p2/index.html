@@ -1,0 +1,218 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><title itemprop=name>Hands-on walkthrough of traffic management in Istio Part 2 | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro</title><meta name=twitter:title content="Hands-on walkthrough of traffic management in Istio Part 2 | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta itemprop=name content="Hands-on walkthrough of traffic management in Istio Part 2 | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta name=application-name content="Hands-on walkthrough of traffic management in Istio Part 2 | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta property="og:site_name" content="Tetrate Istio Distro"><meta name=description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta itemprop=description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta name=twitter:description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta property="og:locale" content="en"><meta name=language content="En"><meta property="og:updated_time" content="2021-02-23T13:15:00Z"><link rel=sitemap type=application/xml title=Sitemap href=/sitemap.xml><meta property="og:type" content="article"><meta property="article:publisher" content><meta property="og:article:published_time" content="2021-02-23T13:15:00Z"><meta property="article:published_time" content="2021-02-23T13:15:00Z"><meta property="og:article:author" content="[ peter jausovec](https www.peterj.dev )"><meta property="article:author" content="[ peter jausovec](https www.peterj.dev )"><meta name=author content="[ peter jausovec](https www.peterj.dev )"><script defer type=application/ld+json>{"@context":"http://schema.org","@type":"Article","headline":"Hands-on walkthrough of traffic management in Istio Part 2","author":{"@type":"Person","name":"https:\/\/github.com\/tetratelabs\/getmesh"},"datePublished":"2021-02-23","description":"This blog is the second part of Istio's hands-on traffic management practice. ","wordCount":2726,"mainEntityOfPage":"True","dateModified":"2021-02-23","image":{"@type":"imageObject","url":""},"publisher":{"@type":"Organization","name":"Tetrate Istio Distro | Simple, safe enterprise-grade Istio","logo":{"@type":"imageObject","url":"https://getistio.io/images/getistio-by-tetrate-logo.png"}}}</script><meta name=robots content="index,follow"><meta name=googlebot content="index,follow"><meta name=twitter:site content="@tetrateio"><meta name=twitter:creator content="@tetrateio"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=5"><meta name=generator content="Hugo 0.85.0"><script async src="https://www.googletagmanager.com/gtag/js?id=G-P3J9XNBME4"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-P3J9XNBME4')</script><link rel=preload href=/plugins/themify-icons/themify-icons.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/themify-icons/themify-icons.css></noscript><link rel=preload href=/plugins/search/auto-complete.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/search/auto-complete.css></noscript><link rel=preload href=/plugins/featherlight/featherlight.min.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/featherlight/featherlight.min.css></noscript><link rel=preload href=/css/bootstrap/bootstrap.min.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/css/bootstrap/bootstrap.min.css></noscript><link rel=preload href=/scss/style.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/scss/style.css></noscript><link rel="shortcut icon" href=/images/getistio-favicon.png type=image/x-icon><link rel=icon href=/images/getistio-favicon.png type=image/x-icon><meta property="og:title" content="Hands-on walkthrough of traffic management in Istio Part 2"><meta property="og:description" content="This blog is the second part of Istio's hands-on traffic management practice. "><meta property="og:type" content="article"><meta property="og:url" content="https://istio.tetratelabs.io/blog/istio-traffic-management-walkthrough-p2/"><meta property="og:image" content="https://istio.tetratelabs.io/images/twitter-card-new.png"><meta property="article:section" content="blog"><meta property="article:published_time" content="2021-02-23T13:15:00+00:00"><meta property="article:modified_time" content="2021-02-23T13:15:00+00:00"><script async defer src=/js/turbolinks.min.js></script></head><body><header class="sticky-top navigation"><div class=my-container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><div class=navbar-brand-container><a class=navbar-brand href=/><img class="img-fluid logo-width" src=/images/tetrate-istio-distro-logo.png alt="Tetrate Istio Distro | Simple, safe enterprise-grade Istio"></a>
+<a class=github-button href=https://github.com/tetratelabs/getistio data-icon=octicon-star aria-label="Star tetratelabs/getmesh on GitHub">Star</a></div><button aria-label=Menu class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
+<i class="ti-menu h4 text-white"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav mx-auto align-items-center"><li class=nav-item><a class=nav-link href=/getmesh-cli/>Docs</a></li><li class=nav-item><a class=nav-link href=/blog/>Blog</a></li><li class=nav-item><a class=nav-link href=/community-events/>Community</a></li><li class=nav-item><a class=nav-link href=https://academy.tetrate.io target=_blank>Training</a></li><li class=nav-item><a class=nav-link href=https://func-e.io/ target=_blank>func-e</a></li><li class=nav-item><a class=nav-link href=https://www.istio.io/ target=_blank>Istio.io</a></li><li class=nav-link></li></ul><div class="d-lg-none d-block"><a href=/download class="btn btn-sm btn-primary ml-lg-4">download</a></div></div><div class="d-lg-flex d-none"><a href=/download class="btn btn-sm btn-primary ml-lg-4">Download</a></div></nav></div></header><section class="py-5 blog-individual"><div class=container><div class="row mt-0 mb-0 justify-content-center"><div class=col-12><a href=../ class=link-grey>← Back to Blog</a><hr></div><div class="col-sm-9 mt-3"><h1>Hands-on walkthrough of traffic management in Istio Part 2</h1><p class="blog-date mt-3"><span class=author-info>by <a href=https://www.peterj.dev/>Peter Jausovec</a></span>
+<span>on Feb 23, 2021</span>
+/ 12 min read</p><div class="article-tags mb-4"><span class="mr-3 single-tag"><a href=https://istio.tetratelabs.io/tags/istio/>Istio</a></span></div></div></div><div class="row justify-content-center mt-0 blog-content"><div class=col-sm-9><p>This blog is the second part of Istio&rsquo;s hands-on traffic management practice. See the <a href=../istio-traffic-management-walkthrough-p1/>Hands-on walkthrough of traffic management in Istio Part 1</a>. I will show you how to do more advanced with match conditions on request parameters (e.g. URL, headers). Finally, I will talk about mirroring production traffic to a newly deployed service without impacting end-users.</p><h2 id=advanced-traffic-splitting>Advanced Traffic Splitting</h2><p>Sometimes splitting requests by weight might not be enough, and luckily Istio supports doing more advanced request matching. You can match the requests based on the URL, headers, or method before you decide where the requests will get routed.</p><p>For example, you are splitting traffic between two versions, but in addition to that, you only want traffic from the Firefox browsers to go to v2, while requests from other browsers go to v2 version. Or, you can route all <code>GET</code> requests to one version, and route other requests to another version. If you combine this functionality with the ability to rewrite the URLs or do HTTP redirects, you can cover a lot of different scenarios.</p><p>In this section, we will show examples of how to match requests with Istio and how to redirect and rewrite them. All this gets defined as part of the <code>VirtualService</code> resource.</p><h3 id=request-matching>Request Matching</h3><p>Istio allows you to use certain parts of the incoming request and match them to the values you define. If the value matches, the request gets routed to the destination specified in the virtual service.
+The tables below show all request properties that can get matched to user-provided values and the different ways they can get compared:</p><table><thead><tr><th>Property</th><th>Description</th></tr></thead><tbody><tr><td>uri</td><td>Match the request URI to specified value</td></tr><tr><td>schema</td><td>Match the request schema (HTTP, HTTPS, &mldr;)</td></tr><tr><td>method</td><td>Match the request method (GET, POST, &mldr;)</td></tr><tr><td>authority</td><td>Match the request authority header</td></tr><tr><td>headers</td><td>Match the request headers. Headers need to be provided in lower-case and separated by hyphens (e.g. <code>x-my-request-id</code>). Note: if headers get used for matching, other properties (<code>uri</code>, <code>schema</code>, <code>method</code>, <code>authority</code>) will be ignored</td></tr></tbody></table><table><thead><tr><th>Match type</th><th>Description</th></tr></thead><tbody><tr><td>exact</td><td>Property needs to be an exact match to the provided value. For example: <code>exact: Hello</code> will only match if the property value is <code>Hello</code> - it&rsquo;s not going to match if the value is <code>HELLO</code> or <code>hello</code>)</td></tr><tr><td>prefix</td><td>Only prefix of the property will get matched. For example: <code>prefix: Hello</code> will match if the value is <code>HelloWorld</code>, <code>Hello</code>.</td></tr><tr><td>regex</td><td>Value will get matched based on the regex. For example: <code>regex: '.*Firefox.*'</code> will match if the value is <code>Hello Firefox World</code>.</td></tr></tbody></table><p>In addition to the matching properties, one can also define <code>sourceLabels</code> to further constrain the rules to services with specified labels only (e.g. we could specify <code>app: myapp</code> to only apply the matching to requests coming from services that have those labels specified)</p><p>Let&rsquo;s see how the matching works in practice. We will be using the same Hello Web and both versions of the Greeter service.</p><p>As a first example, we are deploying an updated virtual service, that routes all requests coming from the Firefox browser to the v2 version of greeter service.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: VirtualService
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: greeter-service
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  hosts:
+</span><span style=color:#2aa198>    - greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>  http:
+</span><span style=color:#2aa198>    - match:
+</span><span style=color:#2aa198>        - headers:
+</span><span style=color:#2aa198>            user-agent:
+</span><span style=color:#2aa198>              regex: &#39;.*Firefox.*&#39;
+</span><span style=color:#2aa198>      route:
+</span><span style=color:#2aa198>        - destination:
+</span><span style=color:#2aa198>            host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>            port:
+</span><span style=color:#2aa198>              number: 3000
+</span><span style=color:#2aa198>            subset: v2
+</span><span style=color:#2aa198>    - route:
+</span><span style=color:#2aa198>        - destination:
+</span><span style=color:#2aa198>            host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>            port:
+</span><span style=color:#2aa198>                number: 3000
+</span><span style=color:#2aa198>            subset: v1
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>The above YAML defines two routes, but only the first one starts with a match condition. This condition does a check against the incoming request and tries to match the <code>User-Agent</code> header against a defined Regex <code>.*Firefox.*</code>.</p><blockquote><p>This is straightforward matching for the browsers' user agent. We look for the <code>Firefox</code> string in the header. However, there is a variety of other things we could be matching on.</p></blockquote><p>If the regex gets matched, the requests get routed to the v2 subset. If you remember from earlier, this subset defines the <code>version: v2</code> label which corresponds to the v2 version of the greeter service. If we can&rsquo;t match the incoming request, we end up routing to the second route, which is the v1 version of the service.</p><p>To try this out, you can open the gateway URL in two different browsers - Firefox and another one. In the non-Firefox browser and you&rsquo;ll see only v1 responses, and from the Firefox browser, the responses will be coming from the v2 version of the service.</p><p>In case you don&rsquo;t have the Firefox browser installed, you can replace <code>Firefox</code> with something else, use same ModHeader extension we mentioned earlier and add another header called <code>User-Agent</code> with the value <code>Firefox</code>. Alternatively, you can also use <code>curl</code>:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ curl -A <span style=color:#2aa198>&#34;Firefox&#34;</span> -H <span style=color:#2aa198>&#34;Host: helloweb.dev&#34;</span> <span style=color:#268bd2>$GATEWAY</span>
+&lt;link <span style=color:#268bd2>rel</span><span style=color:#719e07>=</span><span style=color:#2aa198>&#34;stylesheet&#34;</span> <span style=color:#268bd2>type</span><span style=color:#719e07>=</span><span style=color:#2aa198>&#34;text/css&#34;</span> <span style=color:#268bd2>href</span><span style=color:#719e07>=</span><span style=color:#2aa198>&#34;css/style.css&#34;</span> /&gt;
+
+&lt;pre&gt;frontend: 1.0.0&lt;/pre&gt;
+&lt;pre&gt;service: 2.0.0&lt;/pre&gt;
+
+&lt;div <span style=color:#268bd2>class</span><span style=color:#719e07>=</span><span style=color:#2aa198>&#34;container&#34;</span>&gt;
+    &lt;h1&gt;🔥🔥 !!HELLO!! 🔥🔥&lt;/h1&gt;
+&lt;/div&gt;
+</code></pre></div><p>Just like you matched the <code>User-Agent</code> header, you could match any other headers as well. For example, you could provide an opt-in mechanism for your users that would give them access to new, unreleased features. As part of this, you&rsquo;d also be setting a special header to all requests (e.g. <code>x-beta-optin: true</code>) and then do request routing based on that header value like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>...
+<span style=color:#268bd2>http</span>:
+  - <span style=color:#268bd2>match</span>:
+    - <span style=color:#268bd2>headers</span>:
+        <span style=color:#268bd2>x-beta-optin</span>:
+            <span style=color:#268bd2>exact</span>: <span style=color:#2aa198>&#39;true&#39;</span>
+    <span style=color:#268bd2>route</span>:
+      - <span style=color:#268bd2>destination</span>:
+          <span style=color:#268bd2>host</span>: greeter-service.default.svc.cluster.local
+          <span style=color:#268bd2>port</span>:
+            <span style=color:#268bd2>number</span>: <span style=color:#2aa198>3000</span>
+          <span style=color:#268bd2>subset</span>: beta-version
+...
+</code></pre></div><h3 id=redirects-and-rewrites>Redirects and Rewrites</h3><p>Matching on headers can be useful, but sometimes you might need to match the requests by the values in the request URI.</p><p>At the moment, greeter service uses the <code>/hello</code> URI to return the message, but we would like to change that be <code>/greeting</code> instead. That way, any service or users requesting <code>/greeting</code> endpoint would get the same response as if they are making requests to <code>/hello</code> endpoint.</p><p>One way we could do this is to create a second endpoint in the greeter service source code and then maintain both endpoints. However, that doesn&rsquo;t sound too practical, especially since there&rsquo;s a more natural way to do this using a service mesh.</p><p>Depending on what you want to do - either an HTTP rewrite or an HTTP redirect, Istio has you covered. Here&rsquo;s an example of how to do an HTTP re-write and rewrite all requests that have <code>/greeting</code> in the URI to go to the <code>/hello</code> endpoint on the v2 version and any other requests go to the v1 subset:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: VirtualService
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: greeter-service
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  hosts:
+</span><span style=color:#2aa198>    - greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>  http:
+</span><span style=color:#2aa198>    - match:
+</span><span style=color:#2aa198>      - uri:
+</span><span style=color:#2aa198>          prefix: /greeting
+</span><span style=color:#2aa198>      rewrite:
+</span><span style=color:#2aa198>        uri: /hello
+</span><span style=color:#2aa198>      route:
+</span><span style=color:#2aa198>        - destination:
+</span><span style=color:#2aa198>            host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>            port:
+</span><span style=color:#2aa198>              number: 3000
+</span><span style=color:#2aa198>            subset: v2
+</span><span style=color:#2aa198>    - route:
+</span><span style=color:#2aa198>        - destination:
+</span><span style=color:#2aa198>            host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>            port:
+</span><span style=color:#2aa198>              number: 3000
+</span><span style=color:#2aa198>            subset: v1
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>Don&rsquo;t forget to include the other route destination at the end, so any request that doesn&rsquo;t match the <code>/greeting</code> will be routed correctly as well. If you forget to add that last route, Istio won&rsquo;t know where to route the traffic if the match condition evaluates to false.</p><p>Try deploying the above YAML and then open the <code>$GATEWAY/greeting</code> URL. When the request gets matched, the <code>/greeting</code> prefix is detected, the URL gets rewritten to <code>/hello</code> and it gets routed to the defined destination.</p><p>Similarly, you could use an HTTP redirect as well:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: VirtualService
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: greeter-service
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  hosts:
+</span><span style=color:#2aa198>    - greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>  http:
+</span><span style=color:#2aa198>    - match:
+</span><span style=color:#2aa198>      - uri:
+</span><span style=color:#2aa198>          prefix: /greeting
+</span><span style=color:#2aa198>      redirect:
+</span><span style=color:#2aa198>         uri: /hello
+</span><span style=color:#2aa198>         authority: greeter-service.default.svc.cluster.local:3000
+</span><span style=color:#2aa198>    - route:
+</span><span style=color:#2aa198>        - destination:
+</span><span style=color:#2aa198>            host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>            port:
+</span><span style=color:#2aa198>              number: 3000
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>Usually, you&rsquo;d use the HTTP redirect if you want to redirect the call to a completely different service. Let&rsquo;s say we had another service called <code>better-greeter-service</code> and we tried to redirect traffic to that service instead. In that case, you can update the <code>authority</code> to <code>better-greeter-service</code> and the traffic will get redirected to that service.</p><p>Just like you&rsquo;ve defined a single match condition for one destination, we could also define multiple match conditions for each route OR add more conditions to a single match. If we build on the previous example, you can add additional match that would check if there&rsquo;s a specific value in the headers:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>...
+<span style=color:#268bd2>http</span>:
+    - <span style=color:#268bd2>match</span>:
+          - <span style=color:#268bd2>uri</span>:
+                <span style=color:#268bd2>prefix</span>: /greeting
+            <span style=color:#268bd2>headers</span>:
+                <span style=color:#268bd2>x-my-header</span>:
+                    <span style=color:#268bd2>exact</span>: something
+      <span style=color:#268bd2>redirect</span>:
+          <span style=color:#268bd2>uri</span>: /hello
+          <span style=color:#268bd2>authority</span>: greeter-service.default.svc.cluster.local:3000
+...
+</code></pre></div><p>In the above case we redirect requests to <code>/hello</code> endpoint if both match conditions are satisfied (<code>AND</code> semantics). Similarly, you could add an additional match entry:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>...
+<span style=color:#268bd2>http</span>:
+  - <span style=color:#268bd2>match</span>:
+    - <span style=color:#268bd2>uri</span>:
+        <span style=color:#268bd2>prefix</span>: /greeting
+    <span style=color:#268bd2>redirect</span>:
+      <span style=color:#268bd2>uri</span>: /hello
+      <span style=color:#268bd2>authority</span>: greeter-service.default.svc.cluster.local:3000
+  - <span style=color:#268bd2>match</span>:
+    - <span style=color:#268bd2>uri</span>:
+      <span style=color:#268bd2>headers</span>:
+        <span style=color:#268bd2>x-my-header</span>:
+          <span style=color:#268bd2>exact</span>: something
+    <span style=color:#268bd2>redirect</span>:
+      <span style=color:#268bd2>uri</span>: /blah
+      <span style=color:#268bd2>authority</span>: greeter-service.default.svc.cluster.local:3000
+...
+</code></pre></div><h2 id=dark-traffic-mirroring>Dark Traffic (Mirroring)</h2><p>Most of this blog talked about routing requests and traffic between different versions based on some requirements and in all cases, the end-users would have a different experience, depending on how the requirements get met. However, sometimes we don&rsquo;t want to release the new version and expose users to it, but we&rsquo;d still like to deploy it and observe how the new service works, get telemetry and compare the performance and functionality of the existing service with the new service.</p><blockquote><p>Difference between deployment and release?</p><p><strong>Deploying</strong> a service to production is merely moving the code to live in production, but not sending any production traffic to it. <strong>Releasing</strong> a service involves taking a deployed service and routing production traffic to it.</p></blockquote><p>In one of the previous sections, we deployed a v2 service and then we were gradually releasing it by sending a higher percentage of traffic to it. Doing this involves risks as the v2 service might not behave correctly and end-users will be impacted by it.</p><p>The idea behind traffic mirroring is to minimize the risk of exposing users to potentially buggy service. Instead of releasing the service as per the definition above, we deploy the new service and then mirror the traffic that gets sent to the released version of the service. Service receiving mirrored traffic can then get observed for errors without impacting any production traffic. In addition to running a variety of tests on the deployed version of the service, you can now also use actual production traffic and increase the testing coverage which could give you more confidence and minimize the risk of releasing a buggy service.</p><p>Here&rsquo;s how to turn on the service mirroring:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: VirtualService
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: greeter-service
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  hosts:
+</span><span style=color:#2aa198>    - greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>  http:
+</span><span style=color:#2aa198>    - route:
+</span><span style=color:#2aa198>      - destination:
+</span><span style=color:#2aa198>          host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>          port:
+</span><span style=color:#2aa198>            number: 3000
+</span><span style=color:#2aa198>          subset: v1
+</span><span style=color:#2aa198>        weight: 100
+</span><span style=color:#2aa198>      mirror:
+</span><span style=color:#2aa198>        host: greeter-service.default.svc.cluster.local
+</span><span style=color:#2aa198>        port:
+</span><span style=color:#2aa198>          number: 3000
+</span><span style=color:#2aa198>        subset: v2
+</span><span style=color:#2aa198>      mirror_percent: 100
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>The virtual service above is routing 100% of the traffic to the greeter service v1, while also mirroring 100% of the traffic to the v2 version of the service. You can control the percentage of traffic mirrored to the service by setting the <code>mirror_percent</code> value.</p><p>The easiest way to see this in action is to watch the logs from the v2 service and then open the gateway URL and reload the page a couple of times. The responses you will see on the web page will be coming from the v1 version of the service; however, you&rsquo;ll also see the request being sent to the v2 version:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl logs greeter-service-v2-78fc64b995-krzf7 -c svc -f
+
+&gt; greeter-service@2.0.0 start /app
+&gt; node server.js
+
+Listening on port <span style=color:#2aa198>3000</span>
+GET /hello <span style=color:#2aa198>200</span> 9.303 ms - <span style=color:#2aa198>59</span>
+GET /hello <span style=color:#2aa198>200</span> 0.811 ms - <span style=color:#2aa198>59</span>
+GET /hello <span style=color:#2aa198>200</span> 0.254 ms - <span style=color:#2aa198>59</span>
+GET /hello <span style=color:#2aa198>200</span> 3.563 ms - <span style=color:#2aa198>59</span>
+...
+</code></pre></div><h2 id=sidecar-proxy>Sidecar Proxy</h2><p>An Envoy sidecar proxy that gets injected to every Kubernetes deployment is configured in such a way that it accepts traffic on all ports and can reach any service in the mesh when it forwards traffic. In some cases, you might want to change this configuration and configure the proxy, so it can only use specific ports and access certain services. To do that, you can use a <em>sidecar</em> resource in Istio. A sidecar resource can be deployed to one or more namespaces inside the Kubernetes cluster, but there can only be one sidecar resource per namespace if there&rsquo;s not workload selector defined.</p><p>Three parts make up the sidecar resource, a workload selector, an ingress listener, and an egress listener.</p><h3 id=workload-selector>Workload selector</h3><p>The sidecar resource uses a workload selector to determine which workloads will be affected by the sidecar configuration. You can decide to control all sidecars within a namespace, regardless of the workload, or provide a workload selector to apply the configuration only to specific services.</p><p>Just like other resources in Istio and Kubernetes, a set of labels is used to select the workloads. For example, the snippet below will apply to all proxies that live inside the <code>default</code> namespace:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: networking.istio.io/v1alpha3
+<span style=color:#268bd2>kind</span>: Sidecar
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: default-sidecar
+  <span style=color:#268bd2>namespace</span>: default
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>egress</span>:
+  - <span style=color:#268bd2>hosts</span>:
+    - <span style=color:#2aa198>&#34;default/*&#34;</span>
+    - <span style=color:#2aa198>&#34;istio-system/*&#34;</span>
+    - <span style=color:#2aa198>&#34;staging/*&#34;</span>
+</code></pre></div><p>Additionally, with the egress section, you are specifying that the proxies will have access to services running in the <code>default</code>, <code>istio-system</code> and <code>staging</code> namespaces. To only select certain workloads, you can add the <code>workloadSelector</code> key. The snippet below only applies to the workloads that have the label <code>version</code> set to <code>v1</code>:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: networking.istio.io/v1alpha3
+<span style=color:#268bd2>kind</span>: Sidecar
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: default-sidecar
+  <span style=color:#268bd2>namespace</span>: default
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>workloadSelector</span>:
+    <span style=color:#268bd2>labels</span>:
+      <span style=color:#268bd2>version</span>: v1
+  <span style=color:#268bd2>egress</span>:
+  - <span style=color:#268bd2>hosts</span>:
+    - <span style=color:#2aa198>&#34;default/*&#34;</span>
+    - <span style=color:#2aa198>&#34;istio-system/*&#34;</span>
+    - <span style=color:#2aa198>&#34;staging/*&#34;</span>
+</code></pre></div><h3 id=ingress-listener>Ingress listener</h3><p>With an ingress listener, you can define which inbound traffic will be accepted. Each ingress listener needs to have a port set - this is the port where the traffic will be received (e.g. <code>5000</code> example below), and a default endpoint. The default endpoint can either be a loopback IP endpoint or a Unix domain socket - this is where the traffic will be forwarded to, for example <code>127.0.0.1:8080</code>. The snippet below shows an example of an ingress listener that listens on port <code>5000</code> and forwards traffic to the loopback IP on port <code>8080</code> - this is where your service would be listening to.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>...
+  <span style=color:#268bd2>ingress</span>:
+  - <span style=color:#268bd2>port</span>:
+      <span style=color:#268bd2>number</span>: <span style=color:#2aa198>5000</span>
+      <span style=color:#268bd2>protocol</span>: HTTP
+      <span style=color:#268bd2>name</span>: somename
+    <span style=color:#268bd2>defaultEndpoint</span>: <span style=color:#2aa198>127.0.0.1</span>:<span style=color:#2aa198>8080</span>
+...
+</code></pre></div><p>You can also use a field called <code>captureMode</code> to configure how traffic will be captured (or not). By default, the capture mode defined by the environment will be used; you can also use <code>IPTABLES</code> as a valid setting to specify that the traffic will be captured using IPtables redirection. The last option is to use <code>NONE</code> - this means that is no traffic capture.</p><p>With the <code>bind</code> field, you can specify an IP address or domain socket for incoming traffic. You&rsquo;d set this if you only want to listen on a specific address for the incoming traffic.</p><p>Similarly, instead of using an IP for the default endpoint, you could forward the traffic to Unix domain socket - e.g. <code>unix://some/path</code>, and have your service listen for connection on that socket. If you are using a Unix domain socket, use <code>0</code> as the port number. Also, the capture mode needs to be either set to <code>DEFAULT</code> or <code>NONE</code>.</p><h3 id=egress-listener>Egress listener</h3><p>An egress listener is used to define the properties for outbound traffic on the sidecar proxy. It has similar fields as the ingress listener, with the addition of the <code>hosts</code> field. With the <code>hosts</code> field you can specify service hosts in the <code>namespace/dnsName</code> (e.g. <code>myservice.default</code> or <code>default/*</code>). Services in the <code>hosts</code> field can either be actual services from the registry (all services registered in the mesh) or services defined with a ServiceEntry (external services) or with virtual services.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml>  <span style=color:#268bd2>egress</span>:
+  - <span style=color:#268bd2>port</span>:
+      <span style=color:#268bd2>number</span>: <span style=color:#2aa198>8080</span>
+      <span style=color:#268bd2>protocol</span>: HTTP
+    <span style=color:#268bd2>bind</span>: <span style=color:#2aa198>127.0.0.1</span>
+    <span style=color:#268bd2>hosts</span>:
+    - <span style=color:#2aa198>&#34;*/my-api.example.com&#34;</span>
+</code></pre></div><p>The snippet above allows your application to communicate with an API that&rsquo;s listening on <code>127.0.0.1:8080</code> with the additional service entry, you can then proxy everything from <code>127.0.0.1:8080</code> to an external API.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: networking.istio.io/v1alpha3
+<span style=color:#268bd2>kind</span>: ServiceEntry
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: external-api-example-com
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>hosts</span>:
+  - my-api.example.com
+  <span style=color:#268bd2>ports</span>:
+  - <span style=color:#268bd2>number</span>: <span style=color:#2aa198>3000</span>
+    <span style=color:#268bd2>protocol</span>: HTTP
+  <span style=color:#268bd2>location</span>: MESH_EXTERNAL
+  <span style=color:#268bd2>resolution</span>: DNS
+</code></pre></div><h2 id=conclusion>Conclusion</h2><p>This blog gave you an overview of request/traffic routing features that Istio provides. You familiarized yourself with the five essential resources in Istio: <code>Gateway</code>, <code>VirtualService</code>, <code>DestinationRule</code>, <code>ServiceEntry</code>, and <code>Sidecar</code>.</p><p>Using the Hello Web and Greeter service examples, you learned how to set up a gateway and allow traffic to enter the cluster and route it to Hello web. Similarly, you went through an exercise to enable a service to reach outside of the cluster to call an existing public API. You&rsquo;ve learned how to split the traffic based on different conditions and rules as well as redirect and rewrite the URL requests. Finally, we showed how to deploy a service to production and mirror traffic to it to minimize the risk to users.</p></div></div><h3>See Also</h3><ul><li><a href=/blog/istio-traffic-management-walkthrough-p1/>Hands-on walkthrough of traffic management in Istio Part 1</a></li><li><a href=/blog/whats-new-istio-1-9/>What's new in Istio 1.9?</a></li></ul><div class="col-12 blog-post-footer"><hr><a href=/blog/ class=link-grey>← Back to Blog</a></div></div></section><footer><div class=container><div class="row align-items-center pb-0 footer-logo"><a class=navbar-brand href=/><img id=getistio-footer-logo class=img-fluid src=/images/tetrate-istio-distro-logo.png alt="Tetrate Istio Distro | Simple, safe enterprise-grade Istio"></a>
+<a href=https://www.tetrate.io target=_blank><img id=tetrate-footer-logo class=img-fluid src=/images/tetrate-logo.svg alt="Tetrate Logo"></a></div><div class="py-4 text-center"><div class=mb-4><ul class="list-inline social-icons text-lg-center text-center"><li class=list-inline-item><a href=https://www.tetrate.io/ target=_blank aria-label="Tetrate website"><i class=ti-world></i></a></li><li class=list-inline-item><a href=https://www.twitter.com/tetrateio target=_blank aria-label="Tetrate Twitter account"><i class=ti-twitter-alt></i></a></li><li class=list-inline-item><a href=https://www.github.com/tetratelabs target=_blank aria-label="Tetrate Github account"><i class=ti-github></i></a></li><li class=list-inline-item><a href=https://www.linkedin.com/company/tetrate/ target=_blank aria-label="Tetrate LinkedIn account"><i class=ti-linkedin></i></a></li></ul></div><small class=text-white>Support: Join our <a href=https://tetr8.io/tetrate-community target=_blank>#tid-and-getmesh Slack Channel</a> for Community Support</small><br><small class=text-white>License: Tetrate Istio Distro is an open source project and is released under Apache License 2.0 | <a href=https://www.tetrate.io/privacy target=_blank>Privacy Statement</a></small><br><small class=text-white>Official project site of istio is <a href=https://www.istio.io target=_blank>istio.io</a></small><br><small class=text-white>Copyright &copy; 2023 <a href=https://www.tetrate.io target=_blank>Tetrate</a> All rights reserved.</small></div></div></footer><script type=text/javascript>var indexURL="/index.json",baseurl="https://istio.tetratelabs.io/"</script><script src=/plugins/jQuery/jquery.min.js></script><script src=/plugins/bootstrap/bootstrap.min.js></script><script src=/plugins/featherlight/featherlight.min.js></script><script src=/plugins/clipboard/clipboard.min.js></script><script src=/plugins/match-height/jquery.matchHeight-min.js></script><script src=/plugins/search/auto-complete.js></script><script src=/plugins/search/search.js></script><script src=/plugins/search/lunr.min.js></script><script src=/plugins/search/fuse.min.js></script><script src=/plugins/search/mark.js></script><script src=/plugins/search/search-page.js></script><script src=/js/script.min.js></script><script src=/js/form.min.js></script><script type=text/javascript src="//js.hsforms.net/forms/v2.js?pre=1"></script><script async defer src=https://buttons.github.io/buttons.js></script></body></html>

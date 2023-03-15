@@ -1,0 +1,335 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><title itemprop=name>How does Istio service mesh deal with security? | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro</title><meta name=twitter:title content="How does Istio service mesh deal with security? | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta itemprop=name content="How does Istio service mesh deal with security? | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta name=application-name content="How does Istio service mesh deal with security? | GetIstio by Tetrate | Simple, safe enterprise-grade Istio distro"><meta property="og:site_name" content="Tetrate Istio Distro"><meta name=description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta itemprop=description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta name=twitter:description content="Tetrate Istio Distro project provides a simple, safe, enterprise-grade Istio distro."><meta property="og:locale" content="en"><meta name=language content="En"><meta property="og:updated_time" content="2021-03-04T12:15:00Z"><link rel=sitemap type=application/xml title=Sitemap href=/sitemap.xml><meta property="og:type" content="article"><meta property="article:publisher" content><meta property="og:article:published_time" content="2021-03-04T12:15:00Z"><meta property="article:published_time" content="2021-03-04T12:15:00Z"><meta property="og:article:author" content="[ peter jausovec](https peterj.dev)"><meta property="article:author" content="[ peter jausovec](https peterj.dev)"><meta name=author content="[ peter jausovec](https peterj.dev)"><script defer type=application/ld+json>{"@context":"http://schema.org","@type":"Article","headline":"How does Istio service mesh deal with security?","author":{"@type":"Person","name":"https:\/\/github.com\/tetratelabs\/getmesh"},"datePublished":"2021-03-04","description":"In this blog, I will explain how Istio can help to solve issues such as encrypting traffic, provide flexible service access control, configure mutual TLS and fine-grained access policies and auditing. ","wordCount":3087,"mainEntityOfPage":"True","dateModified":"2021-03-04","image":{"@type":"imageObject","url":""},"publisher":{"@type":"Organization","name":"Tetrate Istio Distro | Simple, safe enterprise-grade Istio","logo":{"@type":"imageObject","url":"https://getistio.io/images/getistio-by-tetrate-logo.png"}}}</script><meta name=robots content="index,follow"><meta name=googlebot content="index,follow"><meta name=twitter:site content="@tetrateio"><meta name=twitter:creator content="@tetrateio"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=5"><meta name=generator content="Hugo 0.85.0"><script async src="https://www.googletagmanager.com/gtag/js?id=G-P3J9XNBME4"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','G-P3J9XNBME4')</script><link rel=preload href=/plugins/themify-icons/themify-icons.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/themify-icons/themify-icons.css></noscript><link rel=preload href=/plugins/search/auto-complete.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/search/auto-complete.css></noscript><link rel=preload href=/plugins/featherlight/featherlight.min.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/plugins/featherlight/featherlight.min.css></noscript><link rel=preload href=/css/bootstrap/bootstrap.min.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/css/bootstrap/bootstrap.min.css></noscript><link rel=preload href=/scss/style.css as=style onload="this.onload=null,this.rel='stylesheet'"><noscript><link rel=stylesheet href=/scss/style.css></noscript><link rel="shortcut icon" href=/images/getistio-favicon.png type=image/x-icon><link rel=icon href=/images/getistio-favicon.png type=image/x-icon><meta property="og:title" content="How does Istio service mesh deal with security?"><meta property="og:description" content="In this blog, I will explain how Istio can help to solve issues such as encrypting traffic, provide flexible service access control, configure mutual TLS and fine-grained access policies and auditing. "><meta property="og:type" content="article"><meta property="og:url" content="https://istio.tetratelabs.io/blog/istio-security/"><meta property="og:image" content="https://istio.tetratelabs.io/images/twitter-card-new.png"><meta property="article:section" content="blog"><meta property="article:published_time" content="2021-03-04T12:15:00+00:00"><meta property="article:modified_time" content="2021-03-04T12:15:00+00:00"><script async defer src=/js/turbolinks.min.js></script></head><body><header class="sticky-top navigation"><div class=my-container><nav class="navbar navbar-expand-lg navbar-light bg-transparent"><div class=navbar-brand-container><a class=navbar-brand href=/><img class="img-fluid logo-width" src=/images/tetrate-istio-distro-logo.png alt="Tetrate Istio Distro | Simple, safe enterprise-grade Istio"></a>
+<a class=github-button href=https://github.com/tetratelabs/getistio data-icon=octicon-star aria-label="Star tetratelabs/getmesh on GitHub">Star</a></div><button aria-label=Menu class="navbar-toggler border-0" type=button data-toggle=collapse data-target=#navigation>
+<i class="ti-menu h4 text-white"></i></button><div class="collapse navbar-collapse text-center" id=navigation><ul class="navbar-nav mx-auto align-items-center"><li class=nav-item><a class=nav-link href=/getmesh-cli/>Docs</a></li><li class=nav-item><a class=nav-link href=/blog/>Blog</a></li><li class=nav-item><a class=nav-link href=/community-events/>Community</a></li><li class=nav-item><a class=nav-link href=https://academy.tetrate.io target=_blank>Training</a></li><li class=nav-item><a class=nav-link href=https://func-e.io/ target=_blank>func-e</a></li><li class=nav-item><a class=nav-link href=https://www.istio.io/ target=_blank>Istio.io</a></li><li class=nav-link></li></ul><div class="d-lg-none d-block"><a href=/download class="btn btn-sm btn-primary ml-lg-4">download</a></div></div><div class="d-lg-flex d-none"><a href=/download class="btn btn-sm btn-primary ml-lg-4">Download</a></div></nav></div></header><section class="py-5 blog-individual"><div class=container><div class="row mt-0 mb-0 justify-content-center"><div class=col-12><a href=../ class=link-grey>← Back to Blog</a><hr></div><div class="col-sm-9 mt-3"><h1>How does Istio service mesh deal with security?</h1><p class="blog-date mt-3"><span class=author-info>by <a href=https://peterj.dev>Peter Jausovec</a></span>
+<span>on Mar 4, 2021</span>
+/ 14 min read</p><div class="article-tags mb-4"><span class="mr-3 single-tag"><a href=https://istio.tetratelabs.io/tags/istio/>Istio</a></span></div></div></div><div class="row justify-content-center mt-0 blog-content"><div class=col-sm-9><p>In this blog, I will explain how Istio can help to solve issues such as encrypting traffic, provide flexible service access control, configure mutual TLS and fine-grained access policies and auditing.</p><h2 id=istio-security-architecture>Istio Security Architecture</h2><p>The following Istio components are involved in providing security features in Istio:</p><ul><li>Certificate authority (CA) for managing keys and certificates</li><li>Sidecar and perimeter proxies: implement secure communication between clients and servers (they work as Policy Enforcement Points (PEPs)</li><li>Envoy proxy extensions: manage telemetry and auditing</li><li>Configuration API server: distributes authentication, authorization policies and secure naming information</li></ul><blockquote><p>Policy Enforcement Point (PEP) is a component that serves as a gatekeeper to a resource.</p></blockquote><p>Let&rsquo;s look at the architecture diagram in the figure below for different components and their responsibilities.</p><p><img src=security-arch-diagram.png alt="Istio Security Architecture"></p><h2 id=authentication>Authentication</h2><p>Based on the definition, authentication is a process or action of verifying the identity of a user or a process. This means Istio needs to extract credentials from requests and prove they are authentic. Envoy proxies in Istio are using a certificate for their credentials when communicating with each other. These certificates are tied to service accounts in Kubernetes.</p><p>When two services start communicating, they need to exchange the credentials with identity information to mutually authenticate themselves. The client checks the server&rsquo;s identity against the <strong>secure naming</strong> information to see if it is an authorized runner of the service. On the server-side, the server determines what information the client can access based on the <strong>authorization policies</strong>. Additionally, the server can audit who accessed what at what time, and make decisions whether to approve or reject clients from making calls to the server. The secure naming information contains mappings from service identities to the service names. The server identities are encoded in certificates, and the service names are names used by the discovery service or DNS. A single mapping from an identity A to a service name B means that &ldquo;A is allowed and authorized service B&rdquo;. Secure naming information gets generated by the Pilot and then distributed to all sidecar Envoys.</p><h2 id=identity>Identity</h2><p>For issuing identities, Istio uses Secure Production Identity Framework for Everyone, or SPIFFE (pronounced <em>spiffy</em>). SPIFFE is a specification for a framework that can bootstrap and issue identities. Citadel implements the SPIFFE spec; another implementation of SPIFFE is called SPIRE (SPIFFE Runtime Framework).</p><p>There are three concepts to the SPIFFE standard:</p><ul><li>SPIFFE ID: identity namespace that defines how service identify themselves</li><li>SPIFFE Verifiable Identity Document (SVID): dictates how an issued identity is presented and verified. It encodes the SPIFFE ID.</li><li>Workload API: specifies an API for a workload issuing and/or retrieving antoher workload&rsquo;s SVID</li></ul><p>In Kubernetes, service accounts are used for service identity. The URI that represents the SPIFFE ID is formatted like this: <code>spiffe://cluster-name/ns/namespace/sa/service-account-name</code>. By default, any pods that don&rsquo;t set a service account explicitly will use the default service account that&rsquo;s deployed in a namespace.</p><p>You can take look at the service account and the corresponding secret like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl describe sa default
+Name:                default
+Namespace:           default
+Labels:              &lt;none&gt;
+Annotations:         &lt;none&gt;
+Image pull secrets:  &lt;none&gt;
+Mountable secrets:   default-token-pjqr9
+Tokens:              default-token-pjqr9
+Events:              &lt;none&gt;
+</code></pre></div><p>The mountable secret/token name is the name of the secret in the same namespace that contains the certificate and token.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl describe secret default-token-pjqr9
+
+Name:         default-token-pjqr9
+Namespace:    default
+Labels:       &lt;none&gt;
+Annotations:  kubernetes.io/service-account.name: default
+              kubernetes.io/service-account.uid: fe107ed9-8707-11e9-9803-025000000001
+
+Type:  kubernetes.io/service-account-token
+
+<span style=color:#268bd2>Data</span>
+<span style=color:#719e07>====</span>
+ca.crt:     <span style=color:#2aa198>1025</span> bytes
+namespace:  <span style=color:#2aa198>7</span> bytes
+token:      ey....
+</code></pre></div><p>The SPIFFE ID for the default service account would therefore be encoded like this: <em>spiffe://cluster.local/ns/default/sa/default</em>. The specification also describes how to encode this identity into a certificate that can be used to prove the identity. The SPIFFE says that the identity (the URI) needs to be encoded in the certificate&rsquo;s subject alternative name (SAN).</p><p>Finally, the workload API for issuing and retrieving SVIDs in Istio is implemented using ACME (Automatic Certificate Management Environment) protocol.</p><p>The Citadel component automatically creates the certificate for existing and new service accounts, then stores them as Kubernetes secrets. If you create a deployment and look at the pod spec, you will notice something like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>...
+ volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: default-token-pjqr9
+      readOnly: <span style=color:#b58900>true</span>
+...
+</code></pre></div><p>Using this snippet, Kubernetes mounts the certificate and other information from the service account to the pod. Because issued certificates are short-lived for security purposes (i.e. even if the attacker can get the SVID, they can only use it for a short time), Citadel ensures that certificates get rotated automatically.</p><h3 id=mutual-tls-authentication>Mutual TLS authentication</h3><p>Transport authentication, also known as service-to-service authentication is one of the authentication types supported by Istio. Istio implements mutual TLS as a solution for transport authentication.</p><p>TLS stands for Transport Layer Security. TLS is used each time you try to access a secure endpoint. For example, visiting <a href=https://learnistio.com>https://learnistio.com</a> over HTTPS leverages TLS to secure the communication between the server where the website is running, and your browser. It doesn&rsquo;t even matter if sensitive or private information is being transferred - the connection is secured regardless.</p><p>Using TLS requires a certificate authority (CA) to issue a digital certificate to the server, and this server then hands it over to the browser for validation with the CA.</p><p>mTLS takes the same idea but applies it to applications or services. This means that instead of the client only verifying the servers' certificate, the server also verifies the clients certificate.</p><p>An example of TLS would be crossing a border where you need to present your passport (a certificate) to the customs officer. Customs officer ensures your passport is valid, hasn&rsquo;t expired, etc. In the mTLS case, you would also ask for a passport from the customs officer, and you would validate it.</p><p>Once both parties have validated the certificates with their respective CAs, the communication between parties can happen securely.</p><p>In the case of Istio, all communication between services goes through the Envoy proxies. Here are the steps that happen when the call gets made from service A to service B:</p><ol><li>Traffic gets routed from service A to the Envoy proxy in the same pod</li><li>Service A proxy starts an mTLS handshake with the Service B proxy (secure naming check happens as well)</li><li>mTLS connection gets established</li><li>Traffic gets forwarded to the Service B proxy</li><li>Service B proxy forwards traffic to the service B in the same pod</li></ol><p>Mutual TLS in Istio supports a permissive mode. This mode allows a service to accept both plain text traffic and mTLS traffic at the same time. This can help you gradually migrate your services to mTLS, without breaking existing plain text traffic. Once all services have the proxy, you can configure mTLS only mode instead.</p><p>To configure mTLS between services, the traffic policy field in the destination rule is used. For example, to require a client to use mTLS when communcating with the service-b, you&rsquo;d use the <code>ISTIO_MUTUAL</code> mode:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: networking.istio.io/v1alpha3
+<span style=color:#268bd2>kind</span>: DestinationRule
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: service-b-istio-mtls
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>host</span>: service-b.default.svc.cluster.local
+  <span style=color:#268bd2>trafficPolicy</span>:
+    <span style=color:#268bd2>tls</span>:
+      <span style=color:#268bd2>mode</span>: ISTIO_MUTUAL
+</code></pre></div><p>You could also provide your own certificates and set mode to <code>MUTUAL</code> like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: networking.istio.io/v1alpha3
+<span style=color:#268bd2>kind</span>: DestinationRule
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: service-b-mtls
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>host</span>: service-b.default.svc.cluster.local
+  <span style=color:#268bd2>trafficPolicy</span>:
+    <span style=color:#268bd2>tls</span>:
+      <span style=color:#268bd2>mode</span>: MUTUAL
+      <span style=color:#268bd2>clientCertificate</span>: /etc/certs/cert.pem
+      <span style=color:#268bd2>privateKey</span>: /etc/certs/pkey.pem
+      <span style=color:#268bd2>caCertificates</span>: /etc/certs/cacerts.pem
+</code></pre></div><p>Finally, you can set the mode field to <code>SIMPLE</code> to configure the client to use TLS:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: networking.istio.io/v1alpha3
+<span style=color:#268bd2>kind</span>: DestinationRule
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: service-b-tls
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>host</span>: service-b.default.svc.cluster.local
+  <span style=color:#268bd2>trafficPolicy</span>:
+    <span style=color:#268bd2>tls</span>:
+      <span style=color:#268bd2>mode</span>: SIMPLE
+</code></pre></div><h3 id=origin-authentication>Origin authentication</h3><p>Origin authentication, known as end-user authentication, is used for verifying original clients requesting as an end-user or device. Istio enables original authentication with JSON Web Token (JWT) validation and open-source OpenID connect providers (e.g. Googe Auth, Auth0 or Firebase Auth).</p><p>In the case of origin authentication (JWT), the application itself is responsible for acquiring and attaching the JWT token to the request.</p><h3 id=authentication-policies>Authentication policies</h3><p>Authentication policies are used to specify authentication requirements for services within the mesh. Similarly, as with traffic routing, Pilot watches for changes in the policy resources and then translates and pushes the configuration to the Envoy proxies.</p><p>These policies define what authentication methods can be accepted (i.e. requests being received). While for the outgoing requests, you would use the destination rule as explained earlier in this blog. The figure below illustrates this:</p><p><img src=dest-vs-policy.png alt="Destination rule vs. Policy"></p><p>Authentication policies can be defined in two scopes that are explained next.</p><p><strong>Namespace-scoped policy</strong></p><p>The policies in the namespace scope can only affect services running in the same namespace. Additionally, you need to specify the namespace name, otherwise, the default namespace is used. Here&rsquo;s an example of a namespace policy for the <code>prod</code> namespace:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: security.istio.io/v1beta1
+<span style=color:#268bd2>kind</span>: PeerAuthentication
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: default
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>mtls</span>:
+    <span style=color:#268bd2>mode</span>: STRICT
+</code></pre></div><p><strong>Mesh-scoped policy</strong></p><p>Mesh-scoped policies can apply to all services in the mesh. You can only define one mesh-scope policy with the name <code>default</code> and an empty targets section. One difference from the namespace-scoped policy is the resource name. While namespace-scope policy resource is called &ldquo;Policy&rdquo; the mesh-scoped policy resource is called &ldquo;MeshPolicy&rdquo;.</p><h4 id=target-selectors>Target selectors</h4><p>To define which services are affected by the policies, target selectors are used. Target selectors are a list of rules to selected services that the policy should be applied. If a target selector is not provided, the policy is used on all services in the same namespace.</p><p>For example, a namespace-scope policy below would apply for the <code>service-a</code> (regardless of the ports) and <code>service-b</code> on port <code>8080</code>:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: authentication.istio.io/v1alpha1
+<span style=color:#268bd2>kind</span>: PeerAuthentication
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: sample-policy
+  <span style=color:#268bd2>namespace</span>: prod
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>target</span>:
+  - <span style=color:#268bd2>name</span>: service-a
+  - <span style=color:#268bd2>name</span>: service-b
+    <span style=color:#268bd2>ports</span>:
+    - <span style=color:#268bd2>number</span>: <span style=color:#2aa198>8080</span>
+</code></pre></div><p>In the case of multiple policies, they get evaluated from the narrowest matching policy (e.g. service-specific), to namespace and the mesh wide. If more than one policies apply to a service, one is randomly chosen.</p><h4 id=transport-authentication>Transport authentication</h4><p>The field called <code>peers</code> defines the authentication methods and any parameters for the method. At the time of writing this, the only supported authentication method is mTLS. To enable it, use the <code>mtls</code> key like this (using the previous example):</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: authentication.istio.io/v1alpha1
+<span style=color:#268bd2>kind</span>: PeerAuthentication
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: sample-policy
+  <span style=color:#268bd2>namespace</span>: prod
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>target</span>:
+  - <span style=color:#268bd2>name</span>: service-a
+  - <span style=color:#268bd2>name</span>: service-b
+    <span style=color:#268bd2>ports</span>:
+    - <span style=color:#268bd2>number</span>: <span style=color:#2aa198>8080</span>
+  <span style=color:#268bd2>peers</span>:
+    - <span style=color:#268bd2>mtls</span>:
+...
+</code></pre></div><h4 id=origin-authentication-1>Origin authentication</h4><p>The only origin authentication currently supported by Istio is JWT. Using the <code>origins</code> field, you can define the method and parameters, such as allowed JWT issuers and enable or disable JWT authentication for a specific path. Here&rsquo;s a sample snippet that shows how to define origin authentication that accepts JWTs issued by Google. Additionally, we are excluding the <code>/health</code> path from JWT authentication:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>origins</span>:
+- <span style=color:#268bd2>jwt</span>:
+    <span style=color:#268bd2>issuer</span>: https://accounts.google.com
+    <span style=color:#268bd2>jwksUri</span>: https://www.googleapis.com/oauth2/v3/certs
+    <span style=color:#268bd2>trigger_rules</span>:
+    - <span style=color:#268bd2>excluded_paths</span>:
+      - <span style=color:#268bd2>exact</span>: /health
+</code></pre></div><h2 id=authorization>Authorization</h2><p>Authorization feature can be used to enable access control on workloads in the mesh. The policy supports both <code>ALLOW</code> and <code>DENY</code> policies. In case when you&rsquo;re using both allow and deny policies at the same time, the deny policies get evaluated first. Each Envoy proxy uses an authorization engine that decides at runtime if requests should be allowed or denied.</p><p>When requests reach the proxy, the authorization engine evaluates the request and returns the authorization result - either <code>ALLOW</code> or <code>DENY</code>. The policies are evaluated in the following order:</p><ol><li>If any <code>DENY</code> policy matches the request → deny the request</li><li>If there no <code>ALLOW</code> policies for the workload → allow the request</li><li>If any of the <code>ALLOW</code> policies match the request → allow the request</li><li>Deny the request</li></ol><p>There is no need to separately enable any authorization features. It&rsquo;s enough to create and apply an authorization policy for your workloads. By default, if there are no authorization policies defined, no access control is enforced and all requests are allowed.</p><p>Authorization policy is configured using the <code>AuthorizationPolicy</code> resource. This resource includes a selector (target workloads), action (allow or deny) and the list of rules that specify when to trigger the action.</p><p>For example, with the snippet below you can apply an authorization policy to any workloads with labels <code>app=greeter-service</code> and <code>version=v2</code> set. Once the request comes to the Envoy proxy of the workload, the authorization engine checks if the traffic is coming from the principal with the provided service account (helloweb) and if the operation is a GET and the <code>x-user</code> header is
+set to <code>user-1</code> - if all these are satisfied, the request is allowed, otherwise, the request gets denied.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: security.istio.io/v1beta1
+<span style=color:#268bd2>kind</span>: AuthorizationPolicy
+<span style=color:#268bd2>metadata</span>:
+ <span style=color:#268bd2>name</span>: greeter-service
+ <span style=color:#268bd2>namespace</span>: default
+<span style=color:#268bd2>spec</span>:
+ <span style=color:#268bd2>action</span>: ALLOW
+ <span style=color:#268bd2>selector</span>:
+   <span style=color:#268bd2>matchLabels</span>:
+     <span style=color:#268bd2>app</span>: greeter-service
+     <span style=color:#268bd2>version</span>: v2
+ <span style=color:#268bd2>rules</span>:
+ - <span style=color:#268bd2>from</span>:
+   - <span style=color:#268bd2>source</span>:
+       <span style=color:#268bd2>principals</span>: [<span style=color:#2aa198>&#34;cluster.local/ns/default/sa/helloweb&#34;</span>]
+   <span style=color:#268bd2>to</span>:
+   - <span style=color:#268bd2>operation</span>:
+       <span style=color:#268bd2>methods</span>: [<span style=color:#2aa198>&#34;GET&#34;</span>]
+   <span style=color:#268bd2>when</span>:
+   - <span style=color:#268bd2>key</span>: request.headers[x-user]
+     <span style=color:#268bd2>values</span>: [<span style=color:#2aa198>&#34;user-1&#34;</span>]
+</code></pre></div><p>We are specifically applying the authorization policy to workloads labelled with <code>app: greeter-service</code> and <code>version: v2</code>. If we wanted to apply the policy to all workloads in the <code>default</code> namespace, we could simply omit the <code>selector</code> field like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: security.istio.io/v1beta1
+<span style=color:#268bd2>kind</span>: AuthorizationPolicy
+<span style=color:#268bd2>metadata</span>:
+ <span style=color:#268bd2>name</span>: greeter-service
+ <span style=color:#268bd2>namespace</span>: default
+<span style=color:#268bd2>spec</span>:
+ <span style=color:#268bd2>rules</span>:
+ - <span style=color:#268bd2>from</span>:
+   - <span style=color:#268bd2>source</span>:
+       <span style=color:#268bd2>principals</span>: [<span style=color:#2aa198>&#34;cluster.local/ns/default/sa/helloweb&#34;</span>]
+   <span style=color:#268bd2>to</span>:
+   - <span style=color:#268bd2>operation</span>:
+       <span style=color:#268bd2>methods</span>: [<span style=color:#2aa198>&#34;GET&#34;</span>]
+   <span style=color:#268bd2>when</span>:
+   - <span style=color:#268bd2>key</span>: request.headers[x-user]
+     <span style=color:#268bd2>values</span>: [<span style=color:#2aa198>&#34;user-1&#34;</span>]
+</code></pre></div><p>You can also define an authorization policy that applies to all workloads in your service mesh, regardless of the namespace. To do that, you need to create an <code>AuthorizationPolicy</code> in the root namespace. By default, the root namespace is <code>istio-system</code>. If you need to change it, you will have to update the <code>rootNamespace</code> field in the <code>MeshConfig</code>.</p><h3 id=value-matching>Value matching</h3><p>You can use the following matching schemes for most fields in the authorization policy:</p><ul><li>Exact: matches an exact string</li><li>Prefix: matches strings that start with the specified value (<code>[prefix]*</code>). For example: &ldquo;hello.world&rdquo; matches &ldquo;hello.world.blah&rdquo;, but not &ldquo;blah.hello.world&rdquo;</li><li>Suffix: matches strings that end with the specified value (<code>*[suffix]</code>). For example: &ldquo;hello.world&rdquo; matches &ldquo;blah.hello.world&rdquo;, but not &ldquo;hell.world.blah&rdquo;</li><li>Presence: matches any value, except empty (i.e. value must be provided, but we don&rsquo;t care what it is as long as it&rsquo;s not empty)</li></ul><p>A couple of fields are exempted and only support exact matching:</p><ul><li><code>key</code> field under the <code>when</code> section</li><li><code>ipBlocks</code> field under the <code>source</code> section</li><li><code>ports</code> field under the <code>to</code> section</li></ul><p>Here&rsquo;s an example of how to allow access to any path under <code>/api</code> as long as it&rsquo;s a GET operation:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: security.istio.io/v1beta1
+<span style=color:#268bd2>kind</span>: AuthorizationPolicy
+<span style=color:#268bd2>metadata</span>:
+ <span style=color:#268bd2>name</span>: greeter-service
+ <span style=color:#268bd2>namespace</span>: default
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>selector</span>:
+    <span style=color:#268bd2>matchLabels</span>:
+      <span style=color:#268bd2>app</span>: greeter-service
+  <span style=color:#268bd2>action</span>: ALLOW
+  <span style=color:#268bd2>rules</span>:
+   - <span style=color:#268bd2>to</span>:
+    - <span style=color:#268bd2>operation</span>:
+        <span style=color:#268bd2>methods</span>: [<span style=color:#2aa198>&#34;GET&#34;</span>]
+        <span style=color:#268bd2>paths</span>: [<span style=color:#2aa198>&#34;/api/*&#34;</span>]
+</code></pre></div><h3 id=exclusions>Exclusions</h3><p>In addition to inclusion matching, Istio also support matching exclusions. This means you can match negative conditions like <code>notValues</code>, <code>notPorts</code> or <code>notIpBlocks</code>. The following snippet allows requests that are not under the <code>/private</code> path:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: security.istio.io/v1beta1
+<span style=color:#268bd2>kind</span>: AuthorizationPolicy
+<span style=color:#268bd2>metadata</span>:
+ <span style=color:#268bd2>name</span>: greeter-service
+ <span style=color:#268bd2>namespace</span>: default
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>selector</span>:
+    <span style=color:#268bd2>matchLabels</span>:
+      <span style=color:#268bd2>app</span>: greeter-service
+  <span style=color:#268bd2>action</span>: ALLOW
+  <span style=color:#268bd2>rules</span>:
+   - <span style=color:#268bd2>to</span>:
+    - <span style=color:#268bd2>operation</span>:
+        <span style=color:#268bd2>notPaths</span>: [<span style=color:#2aa198>&#34;/private&#34;</span>]
+</code></pre></div><h3 id=deny-all-and-allow-all>Deny all and allow all</h3><p>To create an allow all authorization policy that allows full access to all workloads in the specified namespace, you can create a policy with an empty rules section like this:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: security.istio.io/v1beta1
+<span style=color:#268bd2>kind</span>: AuthorizationPolicy
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: allow-all
+  <span style=color:#268bd2>namespace</span>: default
+<span style=color:#268bd2>spec</span>:
+  <span style=color:#268bd2>action</span>: ALLOW
+  <span style=color:#268bd2>rules</span>:
+  - {}
+</code></pre></div><p>Similarly, you can deny access to all workloads by using an empty spec field:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#268bd2>apiVersion</span>: security.istio.io/v1beta1
+<span style=color:#268bd2>kind</span>: AuthorizationPolicy
+<span style=color:#268bd2>metadata</span>:
+  <span style=color:#268bd2>name</span>: deny-all
+  <span style=color:#268bd2>namespace</span>: default
+<span style=color:#268bd2>spec</span>:
+  {}
+</code></pre></div><h2 id=examples>Examples</h2><p>To demonstrate the security features, we will deploy the Hello Web, Greeter service, and corresponding virtual service.</p><p>Start with the greeter deployment and service:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl create -f -
+</span><span style=color:#2aa198>apiVersion: apps/v1
+</span><span style=color:#2aa198>kind: Deployment
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: greeter-service-v1
+</span><span style=color:#2aa198>  labels:
+</span><span style=color:#2aa198>    app: greeter-service
+</span><span style=color:#2aa198>    version: v1
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  replicas: 1
+</span><span style=color:#2aa198>  selector:
+</span><span style=color:#2aa198>    matchLabels:
+</span><span style=color:#2aa198>      app: greeter-service
+</span><span style=color:#2aa198>      version: v1
+</span><span style=color:#2aa198>  template:
+</span><span style=color:#2aa198>    metadata:
+</span><span style=color:#2aa198>      labels:
+</span><span style=color:#2aa198>        app: greeter-service
+</span><span style=color:#2aa198>        version: v1
+</span><span style=color:#2aa198>    spec:
+</span><span style=color:#2aa198>      containers:
+</span><span style=color:#2aa198>        - image: learnistio/greeter-service:1.0.0
+</span><span style=color:#2aa198>          imagePullPolicy: Always
+</span><span style=color:#2aa198>          name: svc
+</span><span style=color:#2aa198>          ports:
+</span><span style=color:#2aa198>            - containerPort: 3000
+</span><span style=color:#2aa198>---
+</span><span style=color:#2aa198>kind: Service
+</span><span style=color:#2aa198>apiVersion: v1
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: greeter-service
+</span><span style=color:#2aa198>  labels:
+</span><span style=color:#2aa198>    app: greeter-service
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  selector:
+</span><span style=color:#2aa198>    app: greeter-service
+</span><span style=color:#2aa198>  ports:
+</span><span style=color:#2aa198>    - port: 3000
+</span><span style=color:#2aa198>      name: http
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>Then create the Hello web deployment and service:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl create -f -
+</span><span style=color:#2aa198>apiVersion: apps/v1
+</span><span style=color:#2aa198>kind: Deployment
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: helloweb
+</span><span style=color:#2aa198>  labels:
+</span><span style=color:#2aa198>    app: helloweb
+</span><span style=color:#2aa198>    version: v1
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  replicas: 1
+</span><span style=color:#2aa198>  selector:
+</span><span style=color:#2aa198>    matchLabels:
+</span><span style=color:#2aa198>      app: helloweb
+</span><span style=color:#2aa198>      version: v1
+</span><span style=color:#2aa198>  template:
+</span><span style=color:#2aa198>    metadata:
+</span><span style=color:#2aa198>      labels:
+</span><span style=color:#2aa198>        app: helloweb
+</span><span style=color:#2aa198>        version: v1
+</span><span style=color:#2aa198>    spec:
+</span><span style=color:#2aa198>      containers:
+</span><span style=color:#2aa198>        - image: learnistio/hello-web:1.0.0
+</span><span style=color:#2aa198>          imagePullPolicy: Always
+</span><span style=color:#2aa198>          name: web
+</span><span style=color:#2aa198>          ports:
+</span><span style=color:#2aa198>            - containerPort: 3000
+</span><span style=color:#2aa198>          env:
+</span><span style=color:#2aa198>            - name: GREETER_SERVICE_URL
+</span><span style=color:#2aa198>              value: &#39;http://greeter-service.default.svc.cluster.local:3000&#39;
+</span><span style=color:#2aa198>---
+</span><span style=color:#2aa198>kind: Service
+</span><span style=color:#2aa198>apiVersion: v1
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: helloweb
+</span><span style=color:#2aa198>  labels:
+</span><span style=color:#2aa198>    app: helloweb
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  selector:
+</span><span style=color:#2aa198>    app: helloweb
+</span><span style=color:#2aa198>  ports:
+</span><span style=color:#2aa198>    - port: 3000
+</span><span style=color:#2aa198>      name: http
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>Finally, create the Virtual service for the Hello web, so that we can expose it through the gateway. Don&rsquo;t forget to deploy the gateway as well - check blog 3 for the snippet.</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: networking.istio.io/v1alpha3
+</span><span style=color:#2aa198>kind: VirtualService
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: helloweb
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198>  hosts:
+</span><span style=color:#2aa198>    - &#39;*&#39;
+</span><span style=color:#2aa198>  gateways:
+</span><span style=color:#2aa198>    - gateway
+</span><span style=color:#2aa198>  http:
+</span><span style=color:#2aa198>    - route:
+</span><span style=color:#2aa198>      - destination:
+</span><span style=color:#2aa198>          host: helloweb.default.svc.cluster.local
+</span><span style=color:#2aa198>          port:
+</span><span style=color:#2aa198>            number: 3000
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>If you open <code>http://$GATEWAY</code> you should see the familiar Hello web with the response from the greeter service.</p><p>Let&rsquo;s use an authorization policy that denies access to all workloads:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f - 
+</span><span style=color:#2aa198>apiVersion: security.istio.io/v1beta1
+</span><span style=color:#2aa198>kind: AuthorizationPolicy
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198>  name: deny-all
+</span><span style=color:#2aa198>  namespace: default
+</span><span style=color:#2aa198>spec: {}
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>With this config, we are denying access to all workloads in the <code>default</code> namespace.</p><p>Try refreshing the <code>http://$GATEWAY</code> or running <code>curl http://$GATEWAY</code>. This time, it won&rsquo;t work and you will see the following error:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>RBAC: access denied
+</code></pre></div><p>To allow Hello Web service to call to the Greeter service we can update the authorization policy that explicitly allows Hello Web making requests to the Greeter service.</p><p>Let&rsquo;s delete the previous policy first by running:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl delete authorizationpolicy deny-all
+</code></pre></div><p>Now we can create a new policy:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: security.istio.io/v1beta1
+</span><span style=color:#2aa198>kind: AuthorizationPolicy
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198> name: greeter-service
+</span><span style=color:#2aa198> namespace: default
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198> selector:
+</span><span style=color:#2aa198>  matchLabels:
+</span><span style=color:#2aa198>    app: greeter-service
+</span><span style=color:#2aa198> rules:
+</span><span style=color:#2aa198>  - to: 
+</span><span style=color:#2aa198>    - operation:
+</span><span style=color:#2aa198>        methods: [&#34;GET&#34;]
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>If you try to reaccess the site, you should be able to see the responses again. Note that there might be some delays due to caching.</p><p>Let&rsquo;s tighten up the service role a bit more and update the authorization policy, so we can only call the <em>/hello</em> endpoint on it:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>cat <span style=color:#2aa198>&lt;&lt;EOF | kubectl apply -f -
+</span><span style=color:#2aa198>apiVersion: security.istio.io/v1beta1
+</span><span style=color:#2aa198>kind: AuthorizationPolicy
+</span><span style=color:#2aa198>metadata:
+</span><span style=color:#2aa198> name: greeter-service
+</span><span style=color:#2aa198> namespace: default
+</span><span style=color:#2aa198>spec:
+</span><span style=color:#2aa198> selector:
+</span><span style=color:#2aa198>  matchLabels:
+</span><span style=color:#2aa198>    app: greeter-service
+</span><span style=color:#2aa198> rules:
+</span><span style=color:#2aa198>  - to: 
+</span><span style=color:#2aa198>    - operation:
+</span><span style=color:#2aa198>        methods: [&#34;GET&#34;]
+</span><span style=color:#2aa198>        paths: [&#34;*/hello&#34;]
+</span><span style=color:#2aa198>EOF</span>
+</code></pre></div><p>To test this, we will get a shell inside the Hello web container and use <em>curl</em> to make requests to the greeter service. First, let&rsquo;s figure out the Hello web pod name by running <code>kubectl get pod</code> and then run the exec command:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl <span style=color:#b58900>exec</span> -it <span style=color:#719e07>[</span>podname<span style=color:#719e07>]</span> /bin/sh
+</code></pre></div><p>With the shell inside the container, let&rsquo;s install <em>curl</em> first:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>apk add curl
+</code></pre></div><p>We can test out the service role now. If you run <em>curl</em> against the <em>/hello</em> endpoint, everything works as expected:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>curl greeter-service.default.svc.cluster.local:3000/hello
+<span style=color:#719e07>{</span><span style=color:#2aa198>&#34;message&#34;</span>:<span style=color:#2aa198>&#34;hello 👋 &#34;</span>,<span style=color:#2aa198>&#34;version&#34;</span>:<span style=color:#2aa198>&#34;1.0.0&#34;</span><span style=color:#719e07>}</span>
+</code></pre></div><p>However, if you make a request against the <em>/version</em> endpoint, you will see the familiar error message:</p><div class=highlight><pre style=color:#93a1a1;background-color:#002b36;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>curl greeter-service.default.svc.cluster.local:3000/version
+RBAC: access denied
+</code></pre></div><p>To clean everything, simply delete the authorization policy.</p><h2 id=conclusion>Conclusion</h2><p>In this blog, you learned about how Istio service mesh deals with the security and different features you can use to define authorization policies through a couple of examples.</p></div></div><h3>See Also</h3><ul><li><a href=/blog/testing-services-with-istio/>How to use Istio to test service resiliency?</a></li><li><a href=/blog/istio-resiliency-patterns/>What are the patterns of resilience in Istio?</a></li><li><a href=/blog/istio-traffic-management-walkthrough-p2/>Hands-on walkthrough of traffic management in Istio Part 2</a></li><li><a href=/blog/istio-traffic-management-walkthrough-p1/>Hands-on walkthrough of traffic management in Istio Part 1</a></li><li><a href=/blog/whats-new-istio-1-9/>What's new in Istio 1.9?</a></li></ul><div class="col-12 blog-post-footer"><hr><a href=/blog/ class=link-grey>← Back to Blog</a></div></div></section><footer><div class=container><div class="row align-items-center pb-0 footer-logo"><a class=navbar-brand href=/><img id=getistio-footer-logo class=img-fluid src=/images/tetrate-istio-distro-logo.png alt="Tetrate Istio Distro | Simple, safe enterprise-grade Istio"></a>
+<a href=https://www.tetrate.io target=_blank><img id=tetrate-footer-logo class=img-fluid src=/images/tetrate-logo.svg alt="Tetrate Logo"></a></div><div class="py-4 text-center"><div class=mb-4><ul class="list-inline social-icons text-lg-center text-center"><li class=list-inline-item><a href=https://www.tetrate.io/ target=_blank aria-label="Tetrate website"><i class=ti-world></i></a></li><li class=list-inline-item><a href=https://www.twitter.com/tetrateio target=_blank aria-label="Tetrate Twitter account"><i class=ti-twitter-alt></i></a></li><li class=list-inline-item><a href=https://www.github.com/tetratelabs target=_blank aria-label="Tetrate Github account"><i class=ti-github></i></a></li><li class=list-inline-item><a href=https://www.linkedin.com/company/tetrate/ target=_blank aria-label="Tetrate LinkedIn account"><i class=ti-linkedin></i></a></li></ul></div><small class=text-white>Support: Join our <a href=https://tetr8.io/tetrate-community target=_blank>#tid-and-getmesh Slack Channel</a> for Community Support</small><br><small class=text-white>License: Tetrate Istio Distro is an open source project and is released under Apache License 2.0 | <a href=https://www.tetrate.io/privacy target=_blank>Privacy Statement</a></small><br><small class=text-white>Official project site of istio is <a href=https://www.istio.io target=_blank>istio.io</a></small><br><small class=text-white>Copyright &copy; 2023 <a href=https://www.tetrate.io target=_blank>Tetrate</a> All rights reserved.</small></div></div></footer><script type=text/javascript>var indexURL="/index.json",baseurl="https://istio.tetratelabs.io/"</script><script src=/plugins/jQuery/jquery.min.js></script><script src=/plugins/bootstrap/bootstrap.min.js></script><script src=/plugins/featherlight/featherlight.min.js></script><script src=/plugins/clipboard/clipboard.min.js></script><script src=/plugins/match-height/jquery.matchHeight-min.js></script><script src=/plugins/search/auto-complete.js></script><script src=/plugins/search/search.js></script><script src=/plugins/search/lunr.min.js></script><script src=/plugins/search/fuse.min.js></script><script src=/plugins/search/mark.js></script><script src=/plugins/search/search-page.js></script><script src=/js/script.min.js></script><script src=/js/form.min.js></script><script type=text/javascript src="//js.hsforms.net/forms/v2.js?pre=1"></script><script async defer src=https://buttons.github.io/buttons.js></script></body></html>
